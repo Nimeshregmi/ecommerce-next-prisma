@@ -1,0 +1,48 @@
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+
+type UserState = {
+  isAuthenticated: boolean
+  userId: string | null
+  customerName: string | null
+  email: string | null
+  role: "user" | "admin" | null
+}
+
+const initialState: UserState = {
+  isAuthenticated: false,
+  userId: null,
+  customerName: null,
+  email: null,
+  role: null,
+}
+
+export const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    setUser: (
+      state,
+      action: PayloadAction<{
+        userId: string
+        customerName: string
+        email: string
+        role: "user" | "admin"
+      }>,
+    ) => {
+      state.isAuthenticated = true
+      state.userId = action.payload.userId
+      state.customerName = action.payload.customerName
+      state.email = action.payload.email
+    },
+    clearUser: (state) => {
+      state.isAuthenticated = false
+      state.userId = null
+      state.customerName = null
+      state.email = null
+    },
+  },
+})
+
+export const { setUser, clearUser } = userSlice.actions
+
+export default userSlice.reducer

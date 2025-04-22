@@ -1,0 +1,164 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User entity
+model User {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  password      String
+  loginStatus   String   @default("inactive")
+  registerDate  DateTime @default(now())
+  role          String   @default("user")
+  customer      Customer?
+  administrator Administrator?
+
+  @@map("users")
+}
+
+// Customer entity
+model Customer {
+  id              String        @id @default(uuid())
+  customerName    String
+  address         String
+  email           String        @unique
+  creditCardInfo  String?
+  shippingInfo    String?
+  accountBalance  Float         @default(0)
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders          Order[]
+  shoppingCarts   ShoppingCart[]
+
+  @@map("customers")
+}
+
+// Administrator entity
+model Administrator {
+  id          String   @id @default(uuid())
+  adminName   String
+  email       String   @unique
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website     OnlineShoppingWebsite?
+
+  @@map("administrators")
+}
+
+// Shopping Cart entity
+model ShoppingCart {
+  id          String            @id @default(uuid())
+  customerId  String
+  customer    Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  cartItems   ShoppingCartItem[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@map("shopping_carts")
+}
+
+// Shopping Cart Item entity
+model ShoppingCartItem {
+  id            String      @id @default(uuid())
+  cartId        String
+  cart          ShoppingCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity      Int
+  dateAdded     DateTime    @default(now())
+
+  @@map("shopping_cart_items")
+}
+
+// Order entity
+model Order {
+  id              String        @id @default(uuid())
+  orderId         String        @unique
+  dateCreated     DateTime      @default(now())
+  dateShipped     DateTime?
+  customerName    String
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  status          String        @default("pending")
+  shippingId      String?
+  shippingInfo    ShippingInfo? @relation(fields: [shippingId], references: [id])
+  orderDetails    OrderDetail[]
+  products        Product[]
+
+  @@map("orders")
+}
+
+// Order Detail entity
+model OrderDetail {
+  id              String    @id @default(uuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  productName     String
+  quantity        Int
+  unitCost        Float
+  subtotal        Float
+
+  @@map("order_details")
+}
+
+// Shipping Info entity
+model ShippingInfo {
+  id              String    @id @default(uuid())
+  shippingId      String    @unique
+  shippingType    String
+  shippingCost    Float
+  shippingRegionId Int
+  orders          Order[]
+
+  @@map("shipping_info")
+}
+
+// Product entity
+model Product {
+  id              String          @id @default(uuid())
+  productId       String          @unique
+  productName     String
+  productPrice    Float
+  productStatus   String          @default("active")
+  categoryId      String
+  category        ProductCategory @relation(fields: [categoryId], references: [id])
+  orderDetails    OrderDetail[]
+  cartItems       ShoppingCartItem[]
+  orders          Order[]
+
+  @@map("products")
+}
+
+// Product Category entity
+model ProductCategory {
+  id          String    @id @default(uuid())
+  categoryId  String    @unique
+  categoryName String
+  products    Product[]
+  website     OnlineShoppingWebsite    @relation(fields: [websiteId], references: [id])
+  websiteId   String
+
+  @@map("product_categories")
+}
+
+// Online Shopping Website entity
+model OnlineShoppingWebsite {
+  id          String            @id @default(uuid())
+  websiteName String
+  websiteUrl  String
+  contact     String
+  adminId     String            @unique
+  admin       Administrator     @relation(fields: [adminId], references: [id])
+  categories  ProductCategory[]
+
+  @@map("online_shopping_websites")
+}
