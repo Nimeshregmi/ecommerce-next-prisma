@@ -1,17 +1,20 @@
 import { jwtVerify, SignJWT } from "jose"
 import { cookies } from "next/headers"
 import type { NextRequest } from "next/server"
+import type { AuthUser, ExtendedUser } from "@/types"
 
 // Secret key for JWT signing and verification
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "default_jwt_secret_key_change_this_in_production",
 )
 
-export type JWTPayload = {
+// Define JWTPayload compatible with jose library
+export interface JWTPayload {
   id: string
   email: string
-  role: "user" | "admin"
+  role: string
   name: string
+  [key: string]: any
 }
 
 // Create a JWT token
@@ -59,8 +62,36 @@ export async function getAuthUser(req?: NextRequest): Promise<JWTPayload | null>
       return null
     }
 
-    return await verifyToken(token)
+    // First verify the token
+    const tokenPayload = await verifyToken(token)
+    
+    if (!tokenPayload || !tokenPayload.id) {
+      return null
+    }
+    
+    // Then fetch the latest user data to get current role
+    const { prisma } = await import('@/lib/prisma')
+    
+    const user = await prisma.user.findUnique({
+      where: {
+        id: tokenPayload.id
+      }
+    })
+    
+    if (!user) {
+      return null
+    }
+    
+    // Cast to ExtendedUser to safely access the role property
+    const extendedUser = user as unknown as ExtendedUser
+    
+    // Update the payload with the latest role from the database
+    return {
+      ...tokenPayload,
+      role: extendedUser.role || "user"
+    }
   } catch (error) {
+    console.error("Auth user error:", error)
     return null
   }
 }

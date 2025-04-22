@@ -33,12 +33,14 @@ export const userSlice = createSlice({
       state.userId = action.payload.userId
       state.customerName = action.payload.customerName
       state.email = action.payload.email
+      state.role = action.payload.role
     },
     clearUser: (state) => {
       state.isAuthenticated = false
       state.userId = null
       state.customerName = null
       state.email = null
+      state.role = null
     },
   },
 })

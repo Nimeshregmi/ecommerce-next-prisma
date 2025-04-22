@@ -5,8 +5,15 @@ export async function middleware(request: NextRequest) {
   const user = await getAuthUser(request)
   const path = request.nextUrl.pathname
 
+  // Redirect authenticated users away from auth pages
+  if (user && (path.startsWith("/auth/sign-in") || path.startsWith("/auth/sign-up"))) {
+    return NextResponse.redirect(new URL("/", request.url))
+  }
+
   // Admin routes protection
-  if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
+  if (path.startsWith("/admin") || path.startsWith("/api/admin") ||
+      path.startsWith("/products/add") || path.startsWith("/api/products/add") ||
+      path.startsWith("/categories/add") || path.startsWith("/api/categories/add")) {
     if (!user) {
       // Not authenticated
       if (path.startsWith("/api/")) {
@@ -50,5 +57,11 @@ export const config = {
     "/checkout/:path*",
     "/api/cart/:path*",
     "/api/orders/:path*",
+    "/auth/sign-in",
+    "/auth/sign-up",
+    "/products/add",
+    "/api/products/add",
+    "/categories/add",
+    "/api/categories/add",
   ],
 }

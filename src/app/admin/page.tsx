@@ -19,7 +19,10 @@ export default async function AdminPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/")
+    <div>
+      {user.role}
+    </div>
+    // redirect("/")
   }
 
   // Fetch dashboard data
@@ -41,6 +44,7 @@ export default async function AdminPage() {
   return (
     <AdminLayout>
       <h1 className="mb-8 text-2xl font-bold">Admin Dashboard</h1>
+      <h1 className="mb-8 text-2xl font-bold">{user.role}</h1>
       <AdminDashboard
         stats={{
           productCount,

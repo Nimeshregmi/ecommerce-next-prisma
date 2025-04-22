@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     })
 
     if (!cart) {
-      cart = await prisma.cart.create({
+      cart = await prisma.shoppingCart.create({
         data: {
           userId: user.id,
         },
