@@ -58,18 +58,7 @@ export default async function CheckoutPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <OrderSummary
-            cartItems={cart.cartItems.map((item) => ({
-              ...item,
-              price: item.product.productPrice,
-              product: {
-                id: item.product.id,
-                productName: item.product.productName,
-                productPrice: item.product.productPrice,
-                imageUrl: item.product.image,
-              },
-            }))}
-          />
+          <OrderSummary cartItems={cart.cartItems} />
         </div>
       </div>
     </div>

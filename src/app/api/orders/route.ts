@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const { shippingInfo, items } = await req.json()
 
     // Validate required fields
-    if (!shippingInfo || !items || items.length === 0) {
+    if (!items || items.length === 0) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 })
     }
 
@@ -65,30 +65,35 @@ export async function POST(req: NextRequest) {
     }
 
     // Start a transaction
-    const order = await prisma.$transaction(async (tx) => {
-      // Create order
-      // Create or find shipping info
-      const shippingInfoRecord = shippingInfo.id
-        ? await tx.shippingInfo.findUnique({
-            where: { id: shippingInfo.id },
-          })
-        : await tx.shippingInfo.create({
-            data: {
-              ...shippingInfo,
-            },
-          });
+    const result = await prisma.$transaction(async (tx) => {
+      // First, find or create a shipping info record
+      let shippingInfoRecord = await tx.shippingInfo.findFirst({
+        where: {
+          shippingId: "standard",
+        },
+      })
 
       if (!shippingInfoRecord) {
-        throw new Error("Failed to create or find shipping info");
+        shippingInfoRecord = await tx.shippingInfo.create({
+          data: {
+            shippingId: "standard",
+            shippingType: "Standard",
+            shippingCost: 0,
+            shippingRegionId: 1,
+          },
+        })
       }
 
-      const newOrder = await tx.order.create({
+      // Create the order
+      const order = await tx.order.create({
         data: {
           orderId: uuidv4().substring(0, 8).toUpperCase(),
           customerId: customer.id,
           customerName: customer.customerName,
           status: "pending",
-          shippingInfo: { connect: { id: shippingInfoRecord.id        },
+          paymentMethod: "cod",
+          shippingId: shippingInfoRecord.id,
+        },
       })
 
       // Get products to verify prices
@@ -105,12 +110,16 @@ export async function POST(req: NextRequest) {
           throw new Error(`Product not found: ${item.productId}`)
         }
 
+        const subtotal = product.productPrice * item.quantity
+
         await tx.orderDetail.create({
           data: {
-            orderId: newOrder.id,
-            productId: item.productId,
+            orderId: order.id,
+            productId: product.id,
+            productName: product.productName,
             quantity: item.quantity,
-            unitPrice: product.productPrice, // Use current price from DB
+            unitCost: product.productPrice,
+            subtotal: subtotal,
           },
         })
       }
@@ -126,12 +135,12 @@ export async function POST(req: NextRequest) {
         })
       }
 
-      return newOrder
+      return order
     })
 
     // Get complete order with details
     const completeOrder = await prisma.order.findUnique({
-      where: { id: order.id },
+      where: { id: result.id },
       include: {
         orderDetails: {
           include: {

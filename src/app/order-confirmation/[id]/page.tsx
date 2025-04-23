@@ -23,16 +23,20 @@ export default async function OrderConfirmationPage({ params }: { params: { id: 
   const order = await prisma.order.findUnique({
     where: {
       id: params.id,
-      customerId: user.id, // Ensure order belongs to user
+      // customerId: user.id,
     },
     include: {
       shippingInfo: true,
+      orderDetails: true,
     },
   })
-
+console.log("order", params.id, order)
   if (!order) {
     notFound()
   }
+
+  // Calculate order total
+  const orderTotal = order.orderDetails.reduce((total, item) => total + item.subtotal, 0)
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 text-center">
@@ -59,11 +63,8 @@ export default async function OrderConfirmationPage({ params }: { params: { id: 
             <p className="text-lg">{new Date(order.dateCreated).toLocaleDateString()}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500">Shipping Address</p>
-            <p className="text-lg">
-              {order.shippingInfo?.shippingAddress}, {order.shippingInfo?.city}, {order.shippingInfo?.state},{" "}
-              {order.shippingInfo?.country}
-            </p>
+            <p className="text-sm font-medium text-gray-500">Total Amount</p>
+            <p className="text-lg">RS.{orderTotal.toFixed(0)}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Status</p>

@@ -133,7 +133,6 @@ model ProductCategory {
   categoryId   String    @unique
   categoryName String
   image        String?
-  websiteId    String
   products     Product[]
 
   @@map("product_categories")

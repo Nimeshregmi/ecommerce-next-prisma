@@ -62,7 +62,6 @@ export async function POST(req: NextRequest) {
         id: uuidv4(),
         categoryName,
         categoryId: normalizedCategoryId,
-        websiteId: "default-website-id", // Replace with the actual websiteId value
         image: image || null,
       },
     })
