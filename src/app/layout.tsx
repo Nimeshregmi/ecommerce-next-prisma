@@ -5,6 +5,7 @@ import "./globals.css"
 import { Providers } from "@/redux/provider"
 import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
+import TopLoadingBar from "@/components/layout/TopLoadinBar"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+      <TopLoadingBar >
         <Providers>
           <div className="flex min-h-screen flex-col">
             <Header />
@@ -29,6 +31,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </Providers>
+        </TopLoadingBar>
       </body>
     </html>
   )
