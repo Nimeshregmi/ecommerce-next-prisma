@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth-actions"
 import { getOrdersForCurrentUser } from "@/lib/order-actions"
 import { Button } from "@/components/ui/button"
+import { getAuthUser } from "@/lib/auth-utils"
 
 export const metadata: Metadata = {
   title: "My Orders | Fashion Fuel",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function OrdersPage() {
-  const user = await getCurrentUser()
+  const user = await getAuthUser();
 
   if (!user) {
     redirect("/auth/sign-in")

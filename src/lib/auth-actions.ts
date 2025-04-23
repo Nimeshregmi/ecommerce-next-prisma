@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid"
 import bcrypt from "bcryptjs"
 import { cookies } from "next/headers"
 import { setAuthCookie, clearAuthCookie, verifyToken } from "@/lib/auth-utils"
+import { Console } from "console"
 
 // Sign up action
 export async function signUpAction(formData: FormData) {
@@ -158,7 +159,6 @@ export async function signOutAction() {
 export async function getCurrentUser() {
   const cookieStore = await cookies()
   const token = cookieStore.get("auth-token")?.value
-
   if (!token) {
     return null
   }

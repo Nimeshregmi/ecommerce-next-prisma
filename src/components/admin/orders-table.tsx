@@ -10,32 +10,39 @@ import { getOrders } from "@/lib/orders"
 type Order = {
   id: string
   orderId: string
-  dateCreated: string
+  dateCreated: Date
   dateShipped: string | null
   customerName: string
   status: string
   orderDetails: any[]
 }
 
-export default function OrdersTable() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+interface OrdersTableProps {
+  initialOrders?: Order[]
+}
+
+export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProps) {
+  const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [isLoading, setIsLoading] = useState(!initialOrders.length)
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
-    const loadOrders = async () => {
-      try {
-        const data = await getOrders()
-        setOrders(data)
-      } catch (error) {
-        console.error("Failed to load orders:", error)
-      } finally {
-        setIsLoading(false)
+    // Only fetch orders if none were provided as props
+    if (initialOrders.length === 0) {
+      const loadOrders = async () => {
+        try {
+          const data = await getOrders()
+          // setOrders(data)
+        } catch (error) {
+          console.error("Failed to load orders:", error)
+        } finally {
+          setIsLoading(false)
+        }
       }
-    }
 
-    loadOrders()
-  }, [])
+      loadOrders()
+    }
+  }, [initialOrders.length])
 
   const filteredOrders = orders.filter(
     (order) =>

@@ -16,11 +16,13 @@ export default async function SignInPage({
 }) {
   // If the user is already authenticated, redirect to the home page
   const user = await getCurrentUser()
+  console.log("user", user)
   if (user) {
     redirect("/")
   }
-
-  const registered = searchParams.registered === "true"
+  const searchparam=await searchParams;
+  // Access searchParams safely"
+  const registered = searchparam.registered === "true"
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-200px)] max-w-md flex-col items-center justify-center px-4 py-12">

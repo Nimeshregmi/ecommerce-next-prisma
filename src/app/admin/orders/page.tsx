@@ -23,7 +23,7 @@ export default async function AdminOrdersPage() {
   }
 
   // Fetch recent orders
-  const orders = await prisma.order.findMany({
+  const ordersData = await prisma.order.findMany({
     take: 50,
     orderBy: {
       dateCreated: "desc",
@@ -32,6 +32,12 @@ export default async function AdminOrdersPage() {
       orderDetails: true,
     },
   })
+  
+  // Transform the date fields to match the expected types
+  const orders = ordersData.map(order => ({
+    ...order,
+    dateShipped: order.dateShipped ? order.dateShipped.toISOString() : null
+  }))
 
   return (
     <AdminLayout>
