@@ -27,6 +27,30 @@ export async function createOrder(data: any) {
   }
 }
 
+export async function updateOrderStatus(orderId: string, status: string) {
+  try {
+    const updatedOrder = await prisma.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status,
+      },
+    })
+
+    return {
+      success: true,
+      order: updatedOrder,
+    }
+  } catch (error) {
+    console.error("Update order status error:", error)
+    return {
+      success: false,
+      error: "Failed to update order status",
+    }
+  }
+}
+
 export async function getOrders() {
   try {
     const orders = await prisma.order.findMany({

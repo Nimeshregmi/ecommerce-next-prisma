@@ -104,6 +104,43 @@ export async function createOrderAction(formData: FormData) {
   }
 }
 
+export async function updateOrderStatusAction(orderId: string, status: string) {
+  try {
+    // Verify if user is admin (optional, uncomment if you want to restrict this action)
+    // const user = await getCurrentUser()
+    // if (!user || user.role !== "admin") {
+    //   return {
+    //     success: false,
+    //     error: "Unauthorized",
+    //   }
+    // }
+
+    // Update the order status
+    const updatedOrder = await prisma.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status,
+      },
+    })
+
+    // Revalidate the orders page to refresh the data
+    revalidatePath("/admin/orders")
+
+    return {
+      success: true,
+      order: updatedOrder,
+    }
+  } catch (error) {
+    console.error("Update order status error:", error)
+    return {
+      success: false,
+      error: "Failed to update order status",
+    }
+  }
+}
+
 export async function getOrdersForCurrentUser() {
   try {
     const user = await getCurrentUser()

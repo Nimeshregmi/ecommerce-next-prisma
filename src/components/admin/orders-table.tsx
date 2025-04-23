@@ -1,11 +1,26 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Eye } from "lucide-react"
+import { Eye, Check, X, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { getOrders } from "@/lib/orders"
+import { updateOrderStatusAction } from "@/lib/order-actions"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 type Order = {
   id: string
@@ -25,6 +40,50 @@ export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProp
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [isLoading, setIsLoading] = useState(!initialOrders.length)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [newStatus, setNewStatus] = useState<string>("") // Fix syntax error by adding closing parenthesis
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  // Handler to open the confirmation dialog when changing status
+  const handleStatusChange = (order: Order, status: string) => {
+    setSelectedOrder(order)
+    setNewStatus(status)
+    setIsConfirmDialogOpen(true)
+  }
+
+  // Handler to update the order status in the database
+  const handleConfirmStatusChange = async () => {
+    if (!selectedOrder || !newStatus) return
+    
+    setIsUpdating(true)
+    try {
+      // Use the server action instead of the client function
+      const result = await updateOrderStatusAction(selectedOrder.id, newStatus)
+      
+      if (result.success) {
+        // Update the orders list with the new status
+        setOrders(orders.map(order => 
+          order.id === selectedOrder.id ? { ...order, status: newStatus } : order
+        ))
+        setIsConfirmDialogOpen(false)
+      } else {
+        alert(`Failed to update status: ${result.error}`)
+      }
+    } catch (error) {
+      console.error("Error updating order status:", error)
+      alert("Failed to update order status. Please try again.")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  // Handler to close the confirmation dialog
+  const handleCancelStatusChange = () => {
+    setIsConfirmDialogOpen(false)
+    setSelectedOrder(null)
+    setNewStatus("")
+  }
 
   useEffect(() => {
     // Only fetch orders if none were provided as props
@@ -64,6 +123,9 @@ export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProp
         return "bg-gray-100 text-gray-800"
     }
   }
+
+  // List of possible order statuses
+  const orderStatuses = ["pending", "processing", "shipped", "completed", "cancelled"]
 
   return (
     <div>
@@ -105,9 +167,29 @@ export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProp
                     <TableCell>{new Date(order.dateCreated).toLocaleDateString()}</TableCell>
                     <TableCell>{order.customerName}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusColor(order.status)}`}>
+                          {order.status}
+                        </span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {orderStatuses.map((status) => (
+                              <DropdownMenuItem 
+                                key={status} 
+                                onClick={() => handleStatusChange(order, status)}
+                                disabled={order.status === status}
+                              >
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                     <TableCell>{order.orderDetails.length}</TableCell>
                     <TableCell className="text-right">
@@ -128,6 +210,48 @@ export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProp
           </Table>
         </div>
       )}
+
+      {/* Status Change Confirmation Dialog */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Status Change</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to change the status of order <strong>{selectedOrder?.orderId}</strong> from{" "}
+              <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusColor(selectedOrder?.status || "")}`}>
+                {selectedOrder?.status}
+              </span>{" "}
+              to{" "}
+              <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusColor(newStatus)}`}>
+                {newStatus}
+              </span>?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleCancelStatusChange}
+              disabled={isUpdating}
+            >
+              <X className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmStatusChange}
+              disabled={isUpdating}
+            >
+              {isUpdating ? (
+                <span>Updating...</span>
+              ) : (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Confirm
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
