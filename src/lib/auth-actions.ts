@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 import bcrypt from "bcryptjs"
 import { cookies } from "next/headers"
-import { setAuthCookie, clearAuthCookie, verifyToken } from "@/lib/auth-utils"
+import { setAuthCookie, clearAuthCookie, verifyToken, createToken } from "@/lib/auth-utils"
 import { Console } from "console"
 
 // Sign up action
@@ -123,10 +123,20 @@ export async function signInAction(formData: FormData) {
       },
     })
 
+    // Create JWT token
+    const tokenPayload = {
+      id: customer.user.id,
+      email: customer.email,
+      role: customer.user.role as "user" | "admin",
+      name: customer.customerName
+    }
+    
+    const token = await createToken(tokenPayload)
+    
     // Set authentication cookie
     const maxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7 // 30 days or 7 days
     const cookieStore = await cookies()
-    cookieStore.set("auth-token", customer.user.id, {
+    cookieStore.set("auth-token", token, {
       httpOnly: true,
       maxAge,
       path: "/",
@@ -160,13 +170,22 @@ export async function getCurrentUser() {
   const cookieStore = await cookies()
   const token = cookieStore.get("auth-token")?.value
   if (!token) {
+    console.log("No auth-token cookie found")
     return null
   }
 
   try {
+    // Decode the JWT token to get the user payload
+    const decodedToken = await verifyToken(token)
+    if (!decodedToken) {
+      console.log("Invalid token")
+      return null
+    }
+
+    // Use the decoded ID to find the user
     const user = await prisma.user.findUnique({
       where: {
-        id: token,
+        id: decodedToken.id,
       },
       include: {
         customer: true,
@@ -175,6 +194,7 @@ export async function getCurrentUser() {
     })
 
     if (!user) {
+      console.log("User not found with ID:", decodedToken.id)
       return null
     }
 
