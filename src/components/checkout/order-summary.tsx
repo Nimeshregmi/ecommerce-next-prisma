@@ -24,7 +24,7 @@ export default function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
         {cartItems.map((item) => (
           <div key={item.id} className="mb-4 flex items-center justify-between">
             <div className="flex items-center">
-              <div className="mr-4 h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100"></div>
+              
               <div>
                 <p className="text-sm font-medium">{item.product.productName}</p>
                 <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
