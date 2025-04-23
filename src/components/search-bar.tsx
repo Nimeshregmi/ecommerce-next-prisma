@@ -42,7 +42,7 @@ export default function SearchBar({ onClose }: { onClose: () => void }) {
             className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
             autoFocus
           />
-          <button type="button" onClick={onClose} className="ml-2 text-sm text-gray-500">
+          <button type="button" onClick={onClose} className="ml-2 text-sm cursor-pointer text-gray-500">
             Cancel
           </button>
         </form>

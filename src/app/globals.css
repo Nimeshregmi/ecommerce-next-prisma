@@ -129,3 +129,36 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Custom animations for hero section */
+@keyframes subtle-zoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes scroll-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(4px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-subtle-zoom {
+  animation: subtle-zoom 15s infinite alternate ease-in-out;
+}
+
+.animate-scroll-down {
+  animation: scroll-down 1.5s infinite ease-in-out;
+}
