@@ -86,7 +86,6 @@ export default function StripeCheckoutForm({ cartItems }: { cartItems: CartItem[
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          paymentMethod: "credit_card",
           items: cartItems.map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,

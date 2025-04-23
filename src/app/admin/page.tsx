@@ -17,7 +17,7 @@ export default async function AdminPage() {
   if (!user) {
     redirect("/auth/sign-in")
   }
-
+  console.log(user.role)
   if (user.role !== "admin") {
     redirect("/")
   }

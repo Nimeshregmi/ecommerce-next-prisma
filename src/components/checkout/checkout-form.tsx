@@ -62,7 +62,6 @@ export default function CheckoutForm({ cartItems }: { cartItems: any[] }) {
             phone: formData.phone,
             notes: formData.notes,
           },
-          paymentMethod: "cod", // Cash on delivery
           items: cartItems.map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,

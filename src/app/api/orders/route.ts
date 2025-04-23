@@ -44,35 +44,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
-    const { shippingInfo, paymentMethod, items } = await req.json()
+    const { shippingInfo, items } = await req.json()
 
     // Validate required fields
     if (!shippingInfo || !items || items.length === 0) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 })
     }
 
+    // Get customer info
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
+    }
+
     // Start a transaction
     const order = await prisma.$transaction(async (tx) => {
       // Create order
+      // Create or find shipping info
+      const shippingInfoRecord = shippingInfo.id
+        ? await tx.shippingInfo.findUnique({
+            where: { id: shippingInfo.id },
+          })
+        : await tx.shippingInfo.create({
+            data: {
+              ...shippingInfo,
+            },
+          });
+
+      if (!shippingInfoRecord) {
+        throw new Error("Failed to create or find shipping info");
+      }
+
       const newOrder = await tx.order.create({
         data: {
           orderId: uuidv4().substring(0, 8).toUpperCase(),
-          customerId: user.id,
-          customerName: user.name,
+          customerId: customer.id,
+          customerName: customer.customerName,
           status: "pending",
-          paymentMethod: paymentMethod || "cod",
-          shippingInfo: {
-        create: {
-          addressLine1: shippingInfo.addressLine1, 
-          city: shippingInfo.city,
-          state: shippingInfo.state,
-          country: shippingInfo.country,
-          postalCode: shippingInfo.postalCode,
-          phone: shippingInfo.phone,
-          notes: shippingInfo.notes || "",
-        },
-          },
-        },
+          shippingInfo: { connect: { id: shippingInfoRecord.id        },
       })
 
       // Get products to verify prices
@@ -100,12 +116,12 @@ export async function POST(req: NextRequest) {
       }
 
       // Clear user's cart
-      const cart = await tx.cart.findFirst({
-        where: { userId: user.id },
+      const cart = await tx.shoppingCart.findFirst({
+        where: { customerId: customer.id },
       })
 
       if (cart) {
-        await tx.cartItem.deleteMany({
+        await tx.shoppingCartItem.deleteMany({
           where: { cartId: cart.id },
         })
       }
