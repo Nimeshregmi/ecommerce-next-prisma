@@ -11,7 +11,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 })
     }
 
-    const { categoryName, categoryId } = await req.json()
+    const { categoryName, categoryId, image } = await req.json()
 
     if (!categoryName) {
       return NextResponse.json({ success: false, error: "Category name is required" }, { status: 400 })
@@ -26,11 +26,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ success: false, error: "Category not found" }, { status: 404 })
     }
 
+    const normalizedCategoryId = categoryId || categoryName.toLowerCase().replace(/\s+/g, "-")
+
     // Check if categoryId is already in use by another category
-    if (categoryId && categoryId !== existingCategory.categoryId) {
+    if (normalizedCategoryId !== existingCategory.categoryId) {
       const duplicateCategory = await prisma.productCategory.findFirst({
         where: {
-          categoryId,
+          categoryId: normalizedCategoryId,
           id: { not: params.id },
         },
       })
@@ -45,7 +47,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       where: { id: params.id },
       data: {
         categoryName,
-        categoryId: categoryId || categoryName.toLowerCase().replace(/\s+/g, "-"),
+        categoryId: normalizedCategoryId,
+        // Keep the existing websiteId
+        image: image || null,
       },
     })
 

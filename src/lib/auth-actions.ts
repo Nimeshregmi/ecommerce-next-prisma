@@ -1,11 +1,11 @@
 "use server"
 
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 import bcrypt from "bcryptjs"
-import { UserResponse, ExtendedUser } from "@/types"
+import { cookies } from "next/headers"
+import { setAuthCookie, clearAuthCookie, verifyToken } from "@/lib/auth-utils"
 
 // Sign up action
 export async function signUpAction(formData: FormData) {
@@ -122,25 +122,10 @@ export async function signInAction(formData: FormData) {
       },
     })
 
-    // Create and set JWT token
-    const { createToken } = await import('@/lib/auth-utils')
-    
-    // Determine user role - admin or regular user
-    const isAdmin = await prisma.administrator.findUnique({
-      where: { userId: customer.user.id },
-    })
-    
-    const token = await createToken({
-      id: customer.user.id,
-      email: customer.email,
-      role: isAdmin ? "admin" : "user",
-      name: customer.customerName,
-    })
-    
     // Set authentication cookie
     const maxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7 // 30 days or 7 days
     const cookieStore = await cookies()
-    cookieStore.set("auth-token", token, {
+    cookieStore.set("auth-token", customer.user.id, {
       httpOnly: true,
       maxAge,
       path: "/",
@@ -165,8 +150,7 @@ export async function signInAction(formData: FormData) {
 
 // Sign out action
 export async function signOutAction() {
-  const cookieStore = await cookies()
-  cookieStore.delete("auth-token")
+  await clearAuthCookie()
   redirect("/auth/sign-in")
 }
 
@@ -180,20 +164,9 @@ export async function getCurrentUser() {
   }
 
   try {
-    // Import verifyToken only when needed to avoid circular dependencies
-    const { verifyToken } = await import('@/lib/auth-utils')
-    
-    // Verify JWT token
-    const payload = await verifyToken(token)
-    
-    if (!payload || !payload.id) {
-      return null
-    }
-    
-    // Fetch the user from database to get the latest data
     const user = await prisma.user.findUnique({
       where: {
-        id: payload.id,
+        id: token,
       },
       include: {
         customer: true,
@@ -205,21 +178,13 @@ export async function getCurrentUser() {
       return null
     }
 
-    // Cast to ExtendedUser to access the role property
-    const extendedUser = user as unknown as ExtendedUser
-    const role = extendedUser.role || "user"
-    const isAdmin = role === "admin"
-    
-    const userData: UserResponse = {
+    return {
       id: user.id,
       userId: user.userId,
-      customerName: user.customer?.customerName,
-      email: user.customer?.email,
-      role,
-      isAdmin,
+      customerName: user.customer?.customerName || user.administrator?.adminName,
+      email: user.customer?.email || user.administrator?.email,
+      role: user.role,
     }
-    
-    return userData
   } catch (error) {
     console.error("Get current user error:", error)
     return null

@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
-import { createProduct, updateProduct } from "@/lib/data/products"
-import { getCategories } from "@/lib/data/categories"
+import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { v4 as uuidv4 } from "uuid"
+import { useToast } from "@/components/ui/use-toast"
+import Image from "next/image"
 
 type Product = {
   id: string
@@ -17,6 +17,7 @@ type Product = {
   productPrice: number
   productStatus: string
   categoryId: string
+  image?: string | null
 }
 
 type Category = {
@@ -29,39 +30,30 @@ export default function AddProductForm({
   onClose,
   onSuccess,
   editingProduct,
+  categories,
 }: {
   onClose: () => void
   onSuccess: (product: Product) => void
   editingProduct: Product | null
+  categories: Category[]
 }) {
   const [formData, setFormData] = useState<{
     productName: string
     productPrice: string
     productStatus: string
     categoryId: string
+    image: string
   }>({
     productName: editingProduct?.productName || "",
     productPrice: editingProduct?.productPrice.toString() || "",
     productStatus: editingProduct?.productStatus || "active",
     categoryId: editingProduct?.categoryId || "",
+    image: editingProduct?.image || "",
   })
 
-  const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await getCategories()
-        setCategories(data)
-      } catch (error) {
-        console.error("Failed to load categories:", error)
-      }
-    }
-
-    loadCategories()
-  }, [])
+  const { toast } = useToast()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -89,23 +81,56 @@ export default function AddProductForm({
         productPrice: Number.parseFloat(formData.productPrice),
         productStatus: formData.productStatus,
         categoryId: formData.categoryId,
+        image: formData.image || null,
       }
 
-      let result
+      let response
 
       if (editingProduct) {
-        result = await updateProduct(editingProduct.id, productData)
+        response = await fetch(`/api/admin/products/${editingProduct.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(productData),
+        })
       } else {
-        result = await createProduct({
-          ...productData,
-          productId: uuidv4().substring(0, 8),
+        response = await fetch("/api/admin/products", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...productData,
+            productId: uuidv4().substring(0, 8),
+          }),
         })
       }
 
-      onSuccess(result)
+      const data = await response.json()
+
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: editingProduct ? "Product updated successfully" : "Product created successfully",
+        })
+        onSuccess(data.data)
+      } else {
+        setError(data.error || "Failed to save product")
+        toast({
+          title: "Error",
+          description: data.error || "Failed to save product",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
       console.error("Failed to save product:", error)
       setError("Failed to save product. Please try again.")
+      toast({
+        title: "Error",
+        description: "Failed to save product",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -117,61 +142,104 @@ export default function AddProductForm({
 
       {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-500">{error}</div>}
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Product Name</label>
-        <Input name="productName" value={formData.productName} onChange={handleChange} disabled={isLoading} required />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Product Name</label>
+          <Input
+            name="productName"
+            value={formData.productName}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Price</label>
+          <Input
+            name="productPrice"
+            type="number"
+            step="0.01"
+            value={formData.productPrice}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Status</label>
+          <Select
+            value={formData.productStatus}
+            onValueChange={(value) => handleSelectChange("productStatus", value)}
+            disabled={isLoading}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Category</label>
+          <Select
+            value={formData.categoryId}
+            onValueChange={(value) => handleSelectChange("categoryId", value)}
+            disabled={isLoading}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.categoryName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Price</label>
+        <label className="text-sm font-medium">Image URL</label>
         <Input
-          name="productPrice"
-          type="number"
-          step="0.01"
-          value={formData.productPrice}
+          name="image"
+          value={formData.image}
           onChange={handleChange}
           disabled={isLoading}
-          required
+          placeholder="https://example.com/image.jpg"
         />
+        <p className="text-xs text-muted-foreground">Enter a URL for the product image</p>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Status</label>
-        <Select
-          value={formData.productStatus}
-          onValueChange={(value) => handleSelectChange("productStatus", value)}
-          disabled={isLoading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Category</label>
-        <Select
-          value={formData.categoryId}
-          onValueChange={(value) => handleSelectChange("categoryId", value)}
-          disabled={isLoading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.categoryName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {formData.image && (
+        <div className="mt-2">
+          <p className="mb-2 text-sm font-medium">Image Preview</p>
+          <div className="relative h-40 w-full overflow-hidden rounded-md bg-gray-100">
+            <Image
+              src={formData.image || "/placeholder.svg"}
+              alt="Product preview"
+              fill
+              className="object-cover"
+              onError={() => {
+                toast({
+                  title: "Error",
+                  description: "Failed to load image. Please check the URL.",
+                  variant: "destructive",
+                })
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>

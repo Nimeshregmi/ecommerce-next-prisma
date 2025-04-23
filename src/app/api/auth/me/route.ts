@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       where: { id: user.id },
       include: {
         customer: true,
+        administrator: true,
       },
     })
 
@@ -22,13 +23,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "User not found" }, { status: 404 })
     }
 
+    // Determine if user is admin
+    const isAdmin = userData.role === "admin" || !!userData.administrator
+
     return NextResponse.json({
       success: true,
       data: {
         id: userData.id,
-        email: userData.customer?.email,
-        name: userData.customer?.customerName,
-        role: userData.role,
+        email: userData.customer?.email || userData.administrator?.email,
+        name: userData.customer?.customerName || userData.administrator?.adminName,
+        role: isAdmin ? "admin" : "user",
       },
     })
   } catch (error) {

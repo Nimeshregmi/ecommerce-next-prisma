@@ -1,20 +1,17 @@
 import { jwtVerify, SignJWT } from "jose"
 import { cookies } from "next/headers"
 import type { NextRequest } from "next/server"
-import type { AuthUser, ExtendedUser } from "@/types"
 
 // Secret key for JWT signing and verification
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "default_jwt_secret_key_change_this_in_production",
 )
 
-// Define JWTPayload compatible with jose library
-export interface JWTPayload {
+export type JWTPayload = {
   id: string
   email: string
-  role: string
+  role: "user" | "admin"
   name: string
-  [key: string]: any
 }
 
 // Create a JWT token
@@ -32,6 +29,7 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
     const { payload } = await jwtVerify(token, JWT_SECRET)
     return payload as JWTPayload
   } catch (error) {
+    console.error("Token verification failed:", error)
     return null
   }
 }
@@ -62,43 +60,16 @@ export async function getAuthUser(req?: NextRequest): Promise<JWTPayload | null>
       return null
     }
 
-    // First verify the token
-    const tokenPayload = await verifyToken(token)
-    
-    if (!tokenPayload || !tokenPayload.id) {
-      return null
-    }
-    
-    // Then fetch the latest user data to get current role
-    const { prisma } = await import('@/lib/prisma')
-    
-    const user = await prisma.user.findUnique({
-      where: {
-        id: tokenPayload.id
-      }
-    })
-    
-    if (!user) {
-      return null
-    }
-    
-    // Cast to ExtendedUser to safely access the role property
-    const extendedUser = user as unknown as ExtendedUser
-    
-    // Update the payload with the latest role from the database
-    return {
-      ...tokenPayload,
-      role: extendedUser.role || "user"
-    }
+    return await verifyToken(token)
   } catch (error) {
-    console.error("Auth user error:", error)
+    console.error("Get auth user error:", error)
     return null
   }
 }
 
 // Set auth token in cookies
-export async function  setAuthCookie(token: string) {
-  var cookieStore =await cookies()
+export async function setAuthCookie(token: string) {
+  const cookieStore = await cookies()
   cookieStore.set("auth-token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -110,6 +81,6 @@ export async function  setAuthCookie(token: string) {
 
 // Clear auth cookie
 export async function clearAuthCookie() {
-  var cookieStore =await cookies()
+  const cookieStore = await cookies()
   cookieStore.delete("auth-token")
 }

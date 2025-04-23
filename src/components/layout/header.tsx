@@ -15,11 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// Define type for category from database
 type Category = {
   id: string
   categoryId: string
   categoryName: string
+  image?: string | null
 }
 
 export default function Header() {
@@ -64,6 +64,24 @@ export default function Header() {
     checkAuth()
   }, [dispatch])
 
+  // Fetch categories for the navbar
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories")
+        const data = await response.json()
+
+        if (data.success) {
+          setCategories(data.data || [])
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
   // Fetch cart count for authenticated users
   const fetchCartCount = async () => {
     try {
@@ -90,51 +108,56 @@ export default function Header() {
     }
   }
 
-  // Fetch categories from the database
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/categories')
-        const data = await response.json()
-        
-        if (data.success) {
-          setCategories(data.data)
-        }
-      } catch (error) {
-        console.error('Failed to fetch categories:', error)
-      }
-    }
-    
-    fetchCategories()
-  }, [])
+  // Featured categories for the main navigation
+  const featuredCategories = categories.slice(0, 8)
 
   return (
-    <header className="border-b">
+    <header className="border-b shadow-sm">
       {isSearchOpen ? (
         <SearchBar onClose={() => setIsSearchOpen(false)} />
       ) : (
         <>
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
             <div className="flex items-center space-x-8">
-              <nav className="flex items-center justify-center space-x-6">
-                <Link href={'/'} className="font-bold text-2xl">Ecommerce</Link>
+              <Link href="/" className="text-xl font-bold">
+                Fashion Fuel
+              </Link>
+              <nav className="hidden items-center space-x-6 md:flex">
+                <Link
+                  href="/new-arrivals"
+                  className={`border-b-2 pb-1 text-sm ${
+                    pathname === "/new-arrivals" ? "border-black" : "border-transparent"
+                  }`}
+                >
+                  New Arrivals
+                </Link>
+                <Link
+                  href="/women"
+                  className={`border-b-2 pb-1 text-sm ${pathname === "/women" ? "border-black" : "border-transparent"}`}
+                >
+                  Women
+                </Link>
+                <Link
+                  href="/men"
+                  className={`border-b-2 pb-1 text-sm ${pathname === "/men" ? "border-black" : "border-transparent"}`}
+                >
+                  Men
+                </Link>
                 <Link
                   href="/about"
-                  className={`border-b-2 font-bold hover:scale-105 transition-all duration-700 ease-in-out pb-1 text-sm ${pathname === "/about" ? "border-black" : "border-transparent"}`}
+                  className={`border-b-2 pb-1 text-sm ${pathname === "/about" ? "border-black" : "border-transparent"}`}
                 >
                   About
                 </Link>
                 {user.isAuthenticated && user.role === "admin" && (
-                  <>
-                    <Link
-                      href="/admin"
-                      className={`border-b-2 pb-1 font-bold text-sm  text-primary ${
-                        pathname.startsWith("/admin") ? "border-primary" : "border-transparent"
-                      }`}
-                    >
-                      Admin
-                    </Link>
-                  </>
+                  <Link
+                    href="/admin"
+                    className={`border-b-2 pb-1 text-sm font-medium text-primary ${
+                      pathname.startsWith("/admin") ? "border-primary" : "border-transparent"
+                    }`}
+                  >
+                    Admin
+                  </Link>
                 )}
               </nav>
             </div>
@@ -209,29 +232,30 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="border-t">
-            <div className="mx-auto flex max-w-7xl items-center justify-center px-4">
-              <nav className="flex items-center space-x-6 overflow-x-auto py-4 scrollbar-hide">
-                {categories.map((category) => (
-                  <Link
-                    key={category.id}
-                    href={`/categories/${category.categoryId}`}
-                    className="whitespace-nowrap text-sm"
-                  >
-                    {category.categoryName}
-                  </Link>
-                ))}
-              </nav>
+          {categories.length > 0 && (
+            <div className="border-t">
+              <div className="mx-auto max-w-7xl px-4">
+                <nav className="flex items-center space-x-6 overflow-x-auto py-4 scrollbar-hide">
+                  {featuredCategories.map((category) => (
+                    <Link
+                      key={category.id}
+                      href={`/categories/${category.categoryId}`}
+                      className={`whitespace-nowrap text-sm hover:text-primary ${
+                        pathname === `/categories/${category.categoryId}` ? "font-medium text-primary" : ""
+                      }`}
+                    >
+                      {category.categoryName}
+                    </Link>
+                  ))}
+                  {categories.length > 8 && (
+                    <Link href="/categories" className="whitespace-nowrap text-sm font-medium text-primary">
+                      View All
+                    </Link>
+                  )}
+                </nav>
+              </div>
             </div>
-          </div>
-
-          <div className="border-t">
-            <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-4">
-              <Link href="/" className="text-2xl font-medium">
-                Fashion Fuel
-              </Link>
-            </div>
-          </div>
+          )}
         </>
       )}
     </header>

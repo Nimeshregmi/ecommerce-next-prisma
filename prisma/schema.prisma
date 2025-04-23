@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,156 +7,133 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User entity
 model User {
-  id            String   @id @default(uuid())
-  userId        String   @unique
+  id            String         @id @default(uuid())
+  userId        String         @unique
   password      String
-  loginStatus   String   @default("inactive")
-  registerDate  DateTime @default(now())
-  role          String   @default("user")
-  customer      Customer?
+  loginStatus   String         @default("inactive")
+  registerDate  DateTime       @default(now())
+  role          String         @default("user")
   administrator Administrator?
+  customer      Customer?
 
   @@map("users")
 }
 
-// Customer entity
 model Customer {
-  id              String        @id @default(uuid())
-  customerName    String
-  address         String
-  email           String        @unique
-  creditCardInfo  String?
-  shippingInfo    String?
-  accountBalance  Float         @default(0)
-  userId          String        @unique
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders          Order[]
-  shoppingCarts   ShoppingCart[]
+  id             String         @id @default(uuid())
+  customerName   String
+  address        String
+  email          String         @unique
+  creditCardInfo String?
+  shippingInfo   String?
+  accountBalance Float          @default(0)
+  userId         String         @unique
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders         Order[]
+  shoppingCarts  ShoppingCart[]
 
   @@map("customers")
 }
 
-// Administrator entity
 model Administrator {
-  id          String   @id @default(uuid())
-  adminName   String
-  email       String   @unique
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  website     OnlineShoppingWebsite?
+  id        String @id @default(uuid())
+  adminName String
+  email     String @unique
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("administrators")
 }
 
-// Shopping Cart entity
 model ShoppingCart {
-  id          String            @id @default(uuid())
-  customerId  String
-  customer    Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  cartItems   ShoppingCartItem[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id         String             @id @default(uuid())
+  customerId String
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  cartItems  ShoppingCartItem[]
+  customer   Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@map("shopping_carts")
 }
 
-// Shopping Cart Item entity
 model ShoppingCartItem {
-  id            String      @id @default(uuid())
-  cartId        String
-  cart          ShoppingCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productId     String
-  product       Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity      Int
-  dateAdded     DateTime    @default(now())
+  id        String       @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int
+  dateAdded DateTime     @default(now())
+  cart      ShoppingCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("shopping_cart_items")
 }
 
-// Order entity
 model Order {
-  id              String        @id @default(uuid())
-  orderId         String        @unique
-  dateCreated     DateTime      @default(now())
-  dateShipped     DateTime?
-  customerName    String
-  customerId      String
-  customer        Customer      @relation(fields: [customerId], references: [id])
-  status          String        @default("pending")
-  shippingId      String?
-  shippingInfo    ShippingInfo? @relation(fields: [shippingId], references: [id])
-  orderDetails    OrderDetail[]
-  products        Product[]
+  id           String        @id @default(uuid())
+  orderId      String        @unique
+  dateCreated  DateTime      @default(now())
+  dateShipped  DateTime?
+  customerName String
+  customerId   String
+  status       String        @default("pending")
+  shippingId   String?
+  orderDetails OrderDetail[]
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  shippingInfo ShippingInfo? @relation(fields: [shippingId], references: [id])
+  products     Product[]     @relation("OrderToProduct")
 
   @@map("orders")
 }
 
-// Order Detail entity
 model OrderDetail {
-  id              String    @id @default(uuid())
-  orderId         String
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId       String
-  product         Product   @relation(fields: [productId], references: [id])
-  productName     String
-  quantity        Int
-  unitCost        Float
-  subtotal        Float
+  id          String  @id @default(uuid())
+  orderId     String
+  productId   String
+  productName String
+  quantity    Int
+  unitCost    Float
+  subtotal    Float
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id])
 
   @@map("order_details")
 }
 
-// Shipping Info entity
 model ShippingInfo {
-  id              String    @id @default(uuid())
-  shippingId      String    @unique
-  shippingType    String
-  shippingCost    Float
+  id               String  @id @default(uuid())
+  shippingId       String  @unique
+  shippingType     String
+  shippingCost     Float
   shippingRegionId Int
-  orders          Order[]
+  orders           Order[]
 
   @@map("shipping_info")
 }
 
-// Product entity
 model Product {
-  id              String          @id @default(uuid())
-  productId       String          @unique
-  productName     String
-  productPrice    Float
-  productStatus   String          @default("active")
-  categoryId      String
-  category        ProductCategory @relation(fields: [categoryId], references: [id])
-  orderDetails    OrderDetail[]
-  cartItems       ShoppingCartItem[]
-  orders          Order[]
+  id            String             @id @default(uuid())
+  productId     String             @unique
+  productName   String
+  productPrice  Float
+  productStatus String             @default("active")
+  image         String?
+  categoryId    String
+  orderDetails  OrderDetail[]
+  category      ProductCategory    @relation(fields: [categoryId], references: [id])
+  cartItems     ShoppingCartItem[]
+  orders        Order[]            @relation("OrderToProduct")
 
   @@map("products")
 }
 
-// Product Category entity
 model ProductCategory {
-  id          String    @id @default(uuid())
-  categoryId  String    @unique
+  id           String    @id @default(uuid())
+  categoryId   String    @unique
   categoryName String
-  products    Product[]
-  website     OnlineShoppingWebsite    @relation(fields: [websiteId], references: [id])
-  websiteId   String
+  image        String?
+  websiteId    String
+  products     Product[]
 
   @@map("product_categories")
-}
-
-// Online Shopping Website entity
-model OnlineShoppingWebsite {
-  id          String            @id @default(uuid())
-  websiteName String
-  websiteUrl  String
-  contact     String
-  adminId     String            @unique
-  admin       Administrator     @relation(fields: [adminId], references: [id])
-  categories  ProductCategory[]
-
-  @@map("online_shopping_websites")
 }

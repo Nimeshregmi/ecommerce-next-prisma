@@ -11,11 +11,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
+    // Get customer ID from user ID
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
+    }
+
     // Get or create cart
-    let cart = await prisma.cart.findFirst({
-      where: { userId: user.id },
+    let cart = await prisma.shoppingCart.findFirst({
+      where: { customerId: customer.id },
       include: {
-        items: {
+        cartItems: {
           include: {
             product: true,
           },
@@ -26,10 +39,10 @@ export async function GET(req: NextRequest) {
     if (!cart) {
       cart = await prisma.shoppingCart.create({
         data: {
-          userId: user.id,
+          customerId: customer.id,
         },
         include: {
-          items: {
+          cartItems: {
             include: {
               product: true,
             },
@@ -40,7 +53,15 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: cart,
+      data: {
+        id: cart.id,
+        items: cart.cartItems.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          price: item.product.productPrice,
+          product: item.product,
+        })),
+      },
     })
   } catch (error) {
     console.error("Get cart error:", error)
@@ -72,21 +93,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 })
     }
 
+    // Get customer ID from user ID
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
+    }
+
     // Get or create cart
-    let cart = await prisma.cart.findFirst({
-      where: { userId: user.id },
+    let cart = await prisma.shoppingCart.findFirst({
+      where: { customerId: customer.id },
     })
 
     if (!cart) {
-      cart = await prisma.cart.create({
+      cart = await prisma.shoppingCart.create({
         data: {
-          userId: user.id,
+          customerId: customer.id,
         },
       })
     }
 
     // Check if item already in cart
-    const existingItem = await prisma.cartItem.findFirst({
+    const existingItem = await prisma.shoppingCartItem.findFirst({
       where: {
         cartId: cart.id,
         productId,
@@ -95,7 +129,7 @@ export async function POST(req: NextRequest) {
 
     if (existingItem) {
       // Update quantity
-      await prisma.cartItem.update({
+      await prisma.shoppingCartItem.update({
         where: { id: existingItem.id },
         data: {
           quantity: existingItem.quantity + quantity,
@@ -103,21 +137,21 @@ export async function POST(req: NextRequest) {
       })
     } else {
       // Add new item
-      await prisma.cartItem.create({
+      await prisma.shoppingCartItem.create({
         data: {
           cartId: cart.id,
           productId,
           quantity,
-          price: product.productPrice,
+          dateAdded: new Date(), // Make sure to include dateAdded if it's required
         },
       })
     }
 
     // Get updated cart
-    const updatedCart = await prisma.cart.findUnique({
+    const updatedCart = await prisma.shoppingCart.findUnique({
       where: { id: cart.id },
       include: {
-        items: {
+        cartItems: {
           include: {
             product: true,
           },
@@ -128,7 +162,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Item added to cart",
-      data: updatedCart,
+      data: {
+        id: updatedCart?.id,
+        items:
+          updatedCart?.cartItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+            price: item.product.productPrice,
+            product: item.product,
+          })) || [],
+      },
     })
   } catch (error) {
     console.error("Add to cart error:", error)
@@ -145,14 +188,27 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
+    // Get customer ID from user ID
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
+    }
+
     // Get cart
-    const cart = await prisma.cart.findFirst({
-      where: { userId: user.id },
+    const cart = await prisma.shoppingCart.findFirst({
+      where: { customerId: customer.id },
     })
 
     if (cart) {
       // Delete all items
-      await prisma.cartItem.deleteMany({
+      await prisma.shoppingCartItem.deleteMany({
         where: { cartId: cart.id },
       })
     }

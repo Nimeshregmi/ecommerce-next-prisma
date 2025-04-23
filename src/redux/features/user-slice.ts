@@ -5,7 +5,7 @@ type UserState = {
   userId: string | null
   customerName: string | null
   email: string | null
-  role: "user" | "admin" | null
+  role: string | null
 }
 
 const initialState: UserState = {
@@ -26,14 +26,14 @@ export const userSlice = createSlice({
         userId: string
         customerName: string
         email: string
-        role: "user" | "admin"
+        role?: string
       }>,
     ) => {
       state.isAuthenticated = true
       state.userId = action.payload.userId
       state.customerName = action.payload.customerName
       state.email = action.payload.email
-      state.role = action.payload.role
+      state.role = action.payload.role || "user"
     },
     clearUser: (state) => {
       state.isAuthenticated = false

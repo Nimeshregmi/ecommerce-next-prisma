@@ -97,7 +97,7 @@ export default function SignUpForm() {
         />
       </div>
 
-      <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+      <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Creating account..." : "Register"}
       </Button>
     </form>

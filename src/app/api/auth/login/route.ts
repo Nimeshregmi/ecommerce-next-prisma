@@ -45,12 +45,12 @@ export async function POST(req: NextRequest) {
     const token = await createToken({
       id: customer.user.id,
       email: customer.email,
-      role: (customer.user as any).role as "user" | "admin",
+      role: customer.user.role as "user" | "admin",
       name: customer.customerName,
     })
 
     // Set auth cookie
-    setAuthCookie(token)
+    await setAuthCookie(token)
 
     return NextResponse.json({
       success: true,
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         id: customer.user.id,
         email: customer.email,
         name: customer.customerName,
-        role: (customer.user as any).role,
+        role: customer.user.role,
       },
     })
   } catch (error) {

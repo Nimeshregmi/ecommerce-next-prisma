@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Plus, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { getProducts, deleteProduct } from "@/lib/data/products"
+import { useToast } from "@/components/ui/use-toast"
 import AddProductForm from "@/components/admin/add-product-form"
+import Image from "next/image"
+import { formatCurrency } from "@/lib/utils"
 
 type Product = {
   id: string
@@ -15,37 +17,65 @@ type Product = {
   productPrice: number
   productStatus: string
   categoryId: string
+  image?: string | null
+  category?: {
+    id: string
+    categoryName: string
+  }
 }
 
-export default function ProductsTable() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+type Category = {
+  id: string
+  categoryId: string
+  categoryName: string
+}
+
+export default function ProductsTable({
+  initialProducts,
+  categories,
+}: {
+  initialProducts: Product[]
+  categories: Category[]
+}) {
+  const [products, setProducts] = useState<Product[]>(initialProducts)
+  const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const data = await getProducts()
-        setProducts(data)
-      } catch (error) {
-        console.error("Failed to load products:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadProducts()
-  }, [])
+  const { toast } = useToast()
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await deleteProduct(id)
-        setProducts(products.filter((product) => product.id !== id))
+        setIsLoading(true)
+        const response = await fetch(`/api/admin/products/${id}`, {
+          method: "DELETE",
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+          setProducts(products.filter((product) => product.id !== id))
+          toast({
+            title: "Success",
+            description: "Product deleted successfully",
+          })
+        } else {
+          toast({
+            title: "Error",
+            description: data.error || "Failed to delete product",
+            variant: "destructive",
+          })
+        }
       } catch (error) {
         console.error("Failed to delete product:", error)
+        toast({
+          title: "Error",
+          description: "Failed to delete product",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -93,6 +123,7 @@ export default function ProductsTable() {
               setEditingProduct(null)
             }}
             editingProduct={editingProduct}
+            categories={categories}
           />
         </div>
       )}
@@ -104,6 +135,7 @@ export default function ProductsTable() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Image</TableHead>
                 <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Price</TableHead>
@@ -115,16 +147,32 @@ export default function ProductsTable() {
             <TableBody>
               {filteredProducts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
+                  <TableCell colSpan={7} className="text-center">
                     No products found
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredProducts.map((product) => (
                   <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="relative h-10 w-10 overflow-hidden rounded-md bg-gray-100">
+                        {product.image ? (
+                          <Image
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.productName}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                            No img
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="font-medium">{product.productId}</TableCell>
                     <TableCell>{product.productName}</TableCell>
-                    <TableCell>RS.{product.productPrice.toFixed(0)}</TableCell>
+                    <TableCell>{formatCurrency(product.productPrice)}</TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex rounded-full px-2 py-1 text-xs ${
@@ -136,7 +184,7 @@ export default function ProductsTable() {
                         {product.productStatus}
                       </span>
                     </TableCell>
-                    <TableCell>{product.categoryId}</TableCell>
+                    <TableCell>{product.category?.categoryName || "Unknown"}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
                         <Pencil className="h-4 w-4" />

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { useAppSelector } from "@/redux/hooks"
+import { ShoppingCart } from "lucide-react"
 
 type Product = {
   id: string
@@ -73,7 +74,13 @@ export default function AddToCartButton({ product }: { product: Product }) {
   }
 
   return (
-    <Button onClick={handleAddToCart} disabled={isAdding} className="w-full bg-black text-white hover:bg-gray-800">
+    <Button
+      onClick={handleAddToCart}
+      disabled={isAdding}
+      className="w-full bg-black text-white hover:bg-gray-800"
+      size="lg"
+    >
+      <ShoppingCart className="mr-2 h-4 w-4" />
       {isAdding ? "Adding..." : "ADD TO CART"}
     </Button>
   )

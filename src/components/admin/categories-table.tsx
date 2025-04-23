@@ -16,11 +16,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import Image from "next/image"
 
 type Category = {
   id: string
   categoryId: string
   categoryName: string
+  image?: string | null
 }
 
 export default function AdminCategoriesTable({ initialCategories }: { initialCategories: Category[] }) {
@@ -33,6 +35,7 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
   const [formData, setFormData] = useState({
     categoryName: "",
     categoryId: "",
+    image: "",
   })
   const { toast } = useToast()
 
@@ -42,12 +45,14 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
       setFormData({
         categoryName: category.categoryName,
         categoryId: category.categoryId,
+        image: category.image || "",
       })
     } else {
       setSelectedCategory(null)
       setFormData({
         categoryName: "",
         categoryId: "",
+        image: "",
       })
     }
     setIsDialogOpen(true)
@@ -88,6 +93,7 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
           body: JSON.stringify({
             categoryName: formData.categoryName,
             categoryId: formData.categoryId || formData.categoryName.toLowerCase().replace(/\s+/g, "-"),
+            image: formData.image,
           }),
         })
       } else {
@@ -100,6 +106,7 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
           body: JSON.stringify({
             categoryName: formData.categoryName,
             categoryId: formData.categoryId || formData.categoryName.toLowerCase().replace(/\s+/g, "-"),
+            image: formData.image,
           }),
         })
       }
@@ -205,6 +212,7 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Image</TableHead>
               <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -213,13 +221,30 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
           <TableBody>
             {filteredCategories.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center">
+                <TableCell colSpan={4} className="text-center">
                   No categories found
                 </TableCell>
               </TableRow>
             ) : (
               filteredCategories.map((category) => (
                 <TableRow key={category.id}>
+                  <TableCell>
+                    <div className="relative h-10 w-10 overflow-hidden rounded-md bg-gray-100">
+                      {category.image ? (
+                        <Image
+                          src={category.image || "/placeholder.svg"}
+                          alt={category.categoryName}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                          No img
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{category.categoryId}</TableCell>
                   <TableCell>{category.categoryName}</TableCell>
                   <TableCell className="text-right">
@@ -272,6 +297,40 @@ export default function AdminCategoriesTable({ initialCategories }: { initialCat
               />
               <p className="text-xs text-muted-foreground">Leave blank to auto-generate from name</p>
             </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Image URL</label>
+              <Input
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                disabled={isLoading}
+                placeholder="https://example.com/image.jpg"
+              />
+              <p className="text-xs text-muted-foreground">Enter a URL for the category image</p>
+            </div>
+
+            {formData.image && (
+              <div className="mt-2">
+                <p className="mb-2 text-sm font-medium">Image Preview</p>
+                <div className="relative h-40 w-full overflow-hidden rounded-md bg-gray-100">
+                  <Image
+                    src={formData.image || "/placeholder.svg"}
+                    alt="Category preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                    onError={() => {
+                      toast({
+                        title: "Error",
+                        description: "Failed to load image. Please check the URL.",
+                        variant: "destructive",
+                      })
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
