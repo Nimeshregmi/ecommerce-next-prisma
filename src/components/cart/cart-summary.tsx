@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator"
 type CartItem = {
   id: string
   quantity: number
-  price: number
   product: {
     id: string
     productName: string
@@ -44,7 +43,7 @@ export default function CartSummary() {
     return <div className="rounded-lg border p-6">Loading...</div>
   }
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+  const subtotal = cartItems.reduce((total, item) => total + item.product.productPrice * item.quantity, 0)
 
   // Apply a 20% discount to items marked with discount (this would come from the API in a real app)
   const discount = 0 // In this simplified version, no discount is applied

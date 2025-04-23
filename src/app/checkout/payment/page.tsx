@@ -18,14 +18,23 @@ export default async function PaymentPage() {
     redirect("/auth/sign-in")
   }
 
+  // Get customer ID from user ID
+  const customer = await prisma.customer.findFirst({
+    where: {
+      user: {
+        id: user.id,
+      },
+    },
+  })
+
+  if (!customer) {
+    redirect("/auth/sign-in")
+  }
+
   // Get user's cart
   const cart = await prisma.shoppingCart.findFirst({
     where: {
-      customer: {
-        user: {
-          id: user.id,
-        },
-      },
+      customerId: customer.id,
     },
     include: {
       cartItems: {

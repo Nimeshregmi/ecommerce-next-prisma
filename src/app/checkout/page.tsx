@@ -18,11 +18,24 @@ export default async function CheckoutPage() {
     redirect("/auth/sign-in")
   }
 
+  // Get customer ID from user ID
+  const customer = await prisma.customer.findFirst({
+    where: {
+      user: {
+        id: user.id,
+      },
+    },
+  })
+
+  if (!customer) {
+    redirect("/auth/sign-in")
+  }
+
   // Get user's cart
   const cart = await prisma.shoppingCart.findFirst({
-    where: { userId: user.id },
+    where: { customerId: customer.id },
     include: {
-      items: {
+      cartItems: {
         include: {
           product: true,
         },
@@ -31,7 +44,7 @@ export default async function CheckoutPage() {
   })
 
   // If cart is empty, redirect to cart page
-  if (!cart || cart.items.length === 0) {
+  if (!cart || cart.cartItems.length === 0) {
     redirect("/cart")
   }
 
@@ -41,11 +54,22 @@ export default async function CheckoutPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <CheckoutForm cartItems={cart.items} />
+          <CheckoutForm cartItems={cart.cartItems} />
         </div>
 
         <div className="lg:col-span-1">
-          <OrderSummary cartItems={cart.items} />
+          <OrderSummary
+            cartItems={cart.cartItems.map((item) => ({
+              ...item,
+              price: item.product.productPrice,
+              product: {
+                id: item.product.id,
+                productName: item.product.productName,
+                productPrice: item.product.productPrice,
+                imageUrl: item.product.image,
+              },
+            }))}
+          />
         </div>
       </div>
     </div>

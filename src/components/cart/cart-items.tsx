@@ -10,7 +10,6 @@ import { useToast } from "@/components/ui/use-toast"
 type CartItem = {
   id: string
   quantity: number
-  price: number
   product: {
     id: string
     productName: string
@@ -145,6 +144,7 @@ export default function CartItems() {
                 width={80}
                 height={80}
                 className="h-full w-full object-cover"
+                unoptimized
               />
             </div>
 

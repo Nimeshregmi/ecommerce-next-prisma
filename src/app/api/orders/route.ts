@@ -62,15 +62,15 @@ export async function POST(req: NextRequest) {
           status: "pending",
           paymentMethod: paymentMethod || "cod",
           shippingInfo: {
-            create: {
-              shippingAddress: shippingInfo.address,
-              city: shippingInfo.city,
-              state: shippingInfo.state,
-              country: shippingInfo.country,
-              postalCode: shippingInfo.postalCode,
-              phone: shippingInfo.phone,
-              notes: shippingInfo.notes || "",
-            },
+        create: {
+          addressLine1: shippingInfo.addressLine1, 
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          country: shippingInfo.country,
+          postalCode: shippingInfo.postalCode,
+          phone: shippingInfo.phone,
+          notes: shippingInfo.notes || "",
+        },
           },
         },
       })

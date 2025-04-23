@@ -3,7 +3,6 @@ import { Separator } from "@/components/ui/separator"
 type CartItem = {
   id: string
   quantity: number
-  price: number
   product: {
     id: string
     productName: string
@@ -13,8 +12,8 @@ type CartItem = {
 }
 
 export default function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-  const shipping = 0 // Free shipping
+  const subtotal = cartItems.reduce((total, item) => total + item.product.productPrice * item.quantity, 0)
+  const shipping: number = 0 // Free shipping
   const total = subtotal + shipping
 
   return (
@@ -33,7 +32,7 @@ export default function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
             </div>
 
             <div className="text-right">
-              <p className="text-sm font-medium">RS.{(item.price * item.quantity).toFixed(0)}</p>
+              <p className="text-sm font-medium">RS.{(item.product.productPrice * item.quantity).toFixed(0)}</p>
             </div>
           </div>
         ))}

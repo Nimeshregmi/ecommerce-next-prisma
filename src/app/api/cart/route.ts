@@ -58,7 +58,6 @@ export async function GET(req: NextRequest) {
         items: cart.cartItems.map((item) => ({
           id: item.id,
           quantity: item.quantity,
-          price: item.product.productPrice,
           product: item.product,
         })),
       },
@@ -142,7 +141,7 @@ export async function POST(req: NextRequest) {
           cartId: cart.id,
           productId,
           quantity,
-          dateAdded: new Date(), // Make sure to include dateAdded if it's required
+          dateAdded: new Date(),
         },
       })
     }
@@ -168,7 +167,6 @@ export async function POST(req: NextRequest) {
           updatedCart?.cartItems.map((item) => ({
             id: item.id,
             quantity: item.quantity,
-            price: item.product.productPrice,
             product: item.product,
           })) || [],
       },

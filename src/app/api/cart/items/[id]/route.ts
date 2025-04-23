@@ -17,9 +17,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ success: false, error: "Valid quantity is required" }, { status: 400 })
     }
 
+    // Get customer ID from user ID
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
+    }
+
     // Get cart
-    const cart = await prisma.cart.findFirst({
-      where: { userId: user.id },
+    const cart = await prisma.shoppingCart.findFirst({
+      where: { customerId: customer.id },
     })
 
     if (!cart) {
@@ -27,7 +40,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     // Check if item exists and belongs to user's cart
-    const cartItem = await prisma.cartItem.findFirst({
+    const cartItem = await prisma.shoppingCartItem.findFirst({
       where: {
         id: params.id,
         cartId: cart.id,
@@ -39,16 +52,16 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     // Update item quantity
-    await prisma.cartItem.update({
+    await prisma.shoppingCartItem.update({
       where: { id: params.id },
       data: { quantity },
     })
 
     // Get updated cart
-    const updatedCart = await prisma.cart.findUnique({
+    const updatedCart = await prisma.shoppingCart.findUnique({
       where: { id: cart.id },
       include: {
-        items: {
+        cartItems: {
           include: {
             product: true,
           },
@@ -59,7 +72,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({
       success: true,
       message: "Cart item updated",
-      data: updatedCart,
+      data: {
+        id: updatedCart?.id,
+        items: updatedCart?.cartItems.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          product: item.product,
+        })),
+      },
     })
   } catch (error) {
     console.error("Update cart item error:", error)
@@ -76,9 +96,22 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
+    // Get customer ID from user ID
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
+    }
+
     // Get cart
-    const cart = await prisma.cart.findFirst({
-      where: { userId: user.id },
+    const cart = await prisma.shoppingCart.findFirst({
+      where: { customerId: customer.id },
     })
 
     if (!cart) {
@@ -86,7 +119,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     // Check if item exists and belongs to user's cart
-    const cartItem = await prisma.cartItem.findFirst({
+    const cartItem = await prisma.shoppingCartItem.findFirst({
       where: {
         id: params.id,
         cartId: cart.id,
@@ -98,15 +131,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     // Delete item
-    await prisma.cartItem.delete({
+    await prisma.shoppingCartItem.delete({
       where: { id: params.id },
     })
 
     // Get updated cart
-    const updatedCart = await prisma.cart.findUnique({
+    const updatedCart = await prisma.shoppingCart.findUnique({
       where: { id: cart.id },
       include: {
-        items: {
+        cartItems: {
           include: {
             product: true,
           },
@@ -117,7 +150,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({
       success: true,
       message: "Cart item removed",
-      data: updatedCart,
+      data: {
+        id: updatedCart?.id,
+        items: updatedCart?.cartItems.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          product: item.product,
+        })),
+      },
     })
   } catch (error) {
     console.error("Delete cart item error:", error)
