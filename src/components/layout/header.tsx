@@ -133,21 +133,20 @@ export default function Header() {
     }
   };
 
-  // Featured categories for the main navigation
-  const featuredCategories = categories.slice(0, 8);
-
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-white"
-      )}
-    >
-      {isSearchOpen ? (
-        <SearchBar onClose={() => setIsSearchOpen(false)} />
-      ) : (
-        <>
-          <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:px-6">
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300",
+          isScrolled 
+            ? "bg-white/95 backdrop-blur-md shadow-lg" 
+            : "bg-gradient-to-r from-gray-50 to-white"
+        )}
+      >
+        {isSearchOpen ? (
+          <SearchBar onClose={() => setIsSearchOpen(false)} />
+        ) : (
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
             <div className="flex items-center">
               {/* Mobile menu */}
               <Sheet>
@@ -155,9 +154,9 @@ export default function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="mr-2 rounded-full text-gray-700 hover:bg-black/5"
+                    className="mr-2 rounded-full text-gray-700 hover:bg-primary/10 hover:text-primary"
                   >
-                    <Menu className="h-[18px] w-[18px]" />
+                    <Menu className="h-5 w-5" />
                     <span className="sr-only">Menu</span>
                   </Button>
                 </SheetTrigger>
@@ -166,24 +165,24 @@ export default function Header() {
                   className="w-[280px] sm:w-[320px] p-0"
                 >
                   <div className="flex flex-col h-full">
-                    <div className="p-4 border-b">
+                    <div className="p-5 border-b bg-gradient-to-r from-primary/5 to-purple-500/5">
                       <Link
                         href="/"
-                        className="text-lg font-bold flex items-center"
+                        className="text-xl font-bold flex items-center"
                       >
                         <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                           Fashion Fuel
                         </span>
                       </Link>
                     </div>
-                    <nav className="flex flex-col p-2">
+                    <nav className="flex flex-col p-3">
                       <Link
                         href="/products"
                         className={cn(
-                          "px-3 py-2 text-sm rounded-md flex items-center",
+                          "px-4 py-2.5 text-sm rounded-md flex items-center font-medium",
                           pathname === "/products"
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "hover:bg-gray-50 text-gray-700"
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-gray-50 text-gray-700 hover:text-primary"
                         )}
                       >
                         All Products
@@ -191,10 +190,10 @@ export default function Header() {
                       <Link
                         href="/new-arrivals"
                         className={cn(
-                          "px-3 py-2 text-sm rounded-md flex items-center",
+                          "px-4 py-2.5 text-sm rounded-md flex items-center font-medium",
                           pathname === "/new-arrivals"
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "hover:bg-gray-50 text-gray-700"
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-gray-50 text-gray-700 hover:text-primary"
                         )}
                       >
                         New Arrivals
@@ -202,10 +201,10 @@ export default function Header() {
                       <Link
                         href="/about"
                         className={cn(
-                          "px-3 py-2 text-sm rounded-md flex items-center",
+                          "px-4 py-2.5 text-sm rounded-md flex items-center font-medium",
                           pathname === "/about"
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "hover:bg-gray-50 text-gray-700"
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-gray-50 text-gray-700 hover:text-primary"
                         )}
                       >
                         About
@@ -214,10 +213,10 @@ export default function Header() {
                         <Link
                           href="/order-history"
                           className={cn(
-                            "px-3 py-2 text-sm rounded-md flex items-center",
+                            "px-4 py-2.5 text-sm rounded-md flex items-center font-medium",
                             pathname === "/order-history"
-                              ? "bg-primary/10 text-primary font-medium"
-                              : "hover:bg-gray-50 text-gray-700"
+                              ? "bg-primary/10 text-primary"
+                              : "hover:bg-gray-50 text-gray-700 hover:text-primary"
                           )}
                         >
                           Order History
@@ -225,8 +224,8 @@ export default function Header() {
                       )}
                     </nav>
                     {categories.length > 0 && (
-                      <div className="py-2 px-2 border-t mt-2">
-                        <h3 className="text-xs uppercase tracking-wider text-gray-500 font-medium px-3 py-2">
+                      <div className="py-3 px-3 border-t mt-2">
+                        <h3 className="text-xs uppercase tracking-wider text-gray-500 font-semibold px-4 py-2">
                           Categories
                         </h3>
                         <nav className="flex flex-col">
@@ -235,11 +234,11 @@ export default function Header() {
                               key={category.id}
                               href={`/categories/${category.categoryId}`}
                               className={cn(
-                                "px-3 py-2 text-sm rounded-md",
+                                "px-4 py-2.5 text-sm rounded-md font-medium",
                                 pathname ===
                                   `/categories/${category.categoryId}`
-                                  ? "bg-primary/5 text-primary font-medium"
-                                  : "hover:bg-gray-50 text-gray-700"
+                                  ? "bg-primary/5 text-primary"
+                                  : "hover:bg-gray-50 text-gray-700 hover:text-primary"
                               )}
                             >
                               {category.categoryName}
@@ -253,168 +252,174 @@ export default function Header() {
               </Sheet>
 
               {/* Brand logo */}
-              <Link href="/" className="group text-lg font-bold">
-                <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              <Link 
+                href="/" 
+                className="group text-xl font-bold transition-all duration-300 hover:scale-105"
+              >
+                <span className="bg-gradient-to-r from-primary via-indigo-500 to-purple-600 bg-clip-text text-transparent">
                   Fashion Fuel
                 </span>
               </Link>
 
               {/* Desktop navigation */}
-              <nav className="hidden lg:flex items-center ml-10 space-x-6">
+              <nav className="hidden lg:flex items-center ml-12 space-x-8">
                 <Link
                   href="/products"
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary relative py-1",
-                    pathname === "/products" ? "text-primary" : "text-gray-600"
+                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                    pathname === "/products" 
+                      ? "text-primary" 
+                      : "text-gray-600 hover:text-primary"
                   )}
                 >
                   Shop
                   {pathname === "/products" && (
-                    <span className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-purple-600" />
                   )}
                 </Link>
                 <Link
                   href="/categories"
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary relative py-1",
+                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
                     pathname === "/categories"
                       ? "text-primary"
-                      : "text-gray-600"
+                      : "text-gray-600 hover:text-primary"
                   )}
                 >
                   Category
                   {pathname === "/categories" && (
-                    <span className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-purple-600" />
                   )}
                 </Link>
                 <Link
                   href="/new-arrivals"
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary relative py-1",
+                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
                     pathname === "/new-arrivals"
                       ? "text-primary"
-                      : "text-gray-600"
+                      : "text-gray-600 hover:text-primary"
                   )}
                 >
                   New Arrivals
                   {pathname === "/new-arrivals" && (
-                    <span className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-purple-600" />
                   )}
                 </Link>
                 <Link
                   href="/about"
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary relative py-1",
-                    pathname === "/about" ? "text-primary" : "text-gray-600"
+                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                    pathname === "/about" 
+                      ? "text-primary" 
+                      : "text-gray-600 hover:text-primary"
                   )}
                 >
                   About
                   {pathname === "/about" && (
-                    <span className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-purple-600" />
                   )}
                 </Link>
                 {user.isAuthenticated && user.role === "admin" && (
                   <Link
                     href="/admin"
                     className={cn(
-                      "text-sm font-medium transition-colors hover:text-primary relative py-1",
+                      "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
                       pathname.startsWith("/admin")
                         ? "text-primary"
-                        : "text-gray-600"
+                        : "text-gray-600 hover:text-primary"
                     )}
                   >
                     Admin
                     {pathname.startsWith("/admin") && (
-                      <span className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary" />
+                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-purple-600" />
                     )}
                   </Link>
                 )}
               </nav>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Link href={"/products"}>
-                <button
-                  className="rounded-full p-1.5 hover:bg-gray-100 text-gray-700"
-                  aria-label="Search"
-                >
-                  <Search className="h-[18px] w-[18px]" />
-                </button>
-              </Link>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="rounded-full p-2 hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
+                aria-label="Search"
+              >
+                <Search className="h-[18px] w-[18px]" />
+              </button>
 
               {isLoading ? (
-                <div className="h-7 w-7 animate-pulse rounded-full bg-gray-200"></div>
+                <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200"></div>
               ) : user.isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="rounded-full w-8 h-8 p-0"
+                      className="rounded-full w-9 h-9 p-0 hover:bg-primary/10"
                     >
-                      <div className="h-full w-full rounded-full bg-primary text-white flex items-center justify-center">
+                      <div className="h-full w-full rounded-full bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center shadow-sm">
                         <span className="text-xs font-medium">
                           {user.customerName?.charAt(0).toUpperCase() || "U"}
                         </span>
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 mt-1 p-1">
-                    <div className="px-3 py-2 text-sm font-medium">
+                  <DropdownMenuContent align="end" className="w-56 mt-1 p-1.5 rounded-xl border-none shadow-lg">
+                    <div className="px-3 py-2.5 text-sm font-medium rounded-md bg-gray-50">
                       {user.customerName}
                       {user.role === "admin" && (
                         <Badge
                           variant="secondary"
-                          className="ml-2 text-xs bg-primary/10 text-primary"
+                          className="ml-2 text-xs bg-primary/10 text-primary font-semibold"
                         >
                           Admin
                         </Badge>
                       )}
                     </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/account" className="cursor-pointer">
+                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuItem asChild className="rounded-md">
+                      <Link href="/account" className="cursor-pointer py-2">
                         My Account
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/order-history" className="cursor-pointer">
+                    <DropdownMenuItem asChild className="rounded-md">
+                      <Link href="/order-history" className="cursor-pointer py-2">
                         Order History
                       </Link>
                     </DropdownMenuItem>
 
                     {user.role === "admin" && (
                       <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuSeparator className="my-1" />
+                        <DropdownMenuItem asChild className="rounded-md">
                           <Link
                             href="/admin"
-                            className="cursor-pointer flex items-center"
+                            className="cursor-pointer flex items-center py-2"
                           >
                             <Settings className="mr-2 h-4 w-4" />
                             Admin Dashboard
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem asChild className="rounded-md">
                           <Link
                             href="/admin/products"
-                            className="cursor-pointer"
+                            className="cursor-pointer py-2"
                           >
                             Manage Products
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin/orders" className="cursor-pointer">
+                        <DropdownMenuItem asChild className="rounded-md">
+                          <Link href="/admin/orders" className="cursor-pointer py-2">
                             Manage Orders
                           </Link>
                         </DropdownMenuItem>
                       </>
                     )}
 
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="my-1" />
                     <DropdownMenuItem
                       onClick={handleSignOut}
-                      className="text-red-600 cursor-pointer"
+                      className="text-red-600 cursor-pointer rounded-md py-2"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out
@@ -426,7 +431,7 @@ export default function Header() {
                   size="sm"
                   variant="outline"
                   asChild
-                  className="h-8 text-xs px-3 font-medium"
+                  className="h-9 text-xs px-4 font-medium border-2 rounded-full hover:bg-primary/5 hover:border-primary/70 hover:text-primary transition-all"
                 >
                   <Link href="/auth/sign-in">Sign in</Link>
                 </Button>
@@ -434,56 +439,20 @@ export default function Header() {
 
               <Link
                 href="/cart"
-                className="relative p-1.5 rounded-full hover:bg-gray-100 text-gray-700"
+                className="relative p-2 rounded-full hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
                 aria-label="Cart"
               >
                 <ShoppingCart className="h-[18px] w-[18px]" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600 text-xs font-medium text-white shadow-sm">
                     {cartCount}
                   </span>
                 )}
               </Link>
             </div>
           </div>
-
-          {categories.length > 0 && (
-            <div className="hidden md:block border-t border-gray-100">
-              <div className="mx-auto max-w-7xl px-4 lg:px-6">
-                <div className="relative">
-                  <div className="overflow-x-auto scrollbar-hide">
-                    <nav className="flex items-center space-x-6 py-2">
-                      {featuredCategories.map((category) => (
-                        <Link
-                          key={category.id}
-                          href={`/categories/${category.categoryId}`}
-                          className={cn(
-                            "whitespace-nowrap text-xs font-medium transition-colors py-1",
-                            pathname === `/categories/${category.categoryId}`
-                              ? "text-primary"
-                              : "text-gray-500 hover:text-gray-900"
-                          )}
-                        >
-                          {category.categoryName}
-                        </Link>
-                      ))}
-                      {categories.length > 8 && (
-                        <Link
-                          href="/categories"
-                          className="whitespace-nowrap text-xs font-medium text-primary hover:text-primary/80"
-                        >
-                          View All
-                        </Link>
-                      )}
-                    </nav>
-                  </div>
-                  <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent"></div>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-    </header>
+        )}
+      </header>
+    </>
   );
 }
