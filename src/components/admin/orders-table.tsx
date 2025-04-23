@@ -36,6 +36,13 @@ interface OrdersTableProps {
   initialOrders?: Order[]
 }
 
+  /**
+   * Renders a table of orders with search, filtering, and status updating
+   * functionality.
+   *
+   * @param {Order[]} [initialOrders=[]] - Initial list of orders to display
+   * @returns {JSX.Element}
+   */
 export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProps) {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [isLoading, setIsLoading] = useState(!initialOrders.length)

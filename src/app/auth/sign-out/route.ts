@@ -3,5 +3,4 @@ import { signOutAction } from "@/lib/auth-actions"
 
 export async function GET() {
   await signOutAction()
-  redirect("/auth/sign-in")
 }

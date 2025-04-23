@@ -57,28 +57,30 @@ export async function createOrderAction(formData: FormData) {
     }
 
     const orderId = uuidv4()
+    const shippingId = uuidv4()
 
     // Cart items should be passed as JSON in a hidden form field
     const cartItemsJson = formData.get("cartItems") as string
     const cartItems = JSON.parse(cartItemsJson || "[]")
 
+    // First create the shipping info
+    const shippingInfo = await prisma.shippingInfo.create({
+      data: {
+        shippingId,
+        shippingType: "standard",
+        shippingCost: 0,
+        shippingRegionId: 1
+      }
+    })
+
+    // Then create the order with a reference to the shipping info
     const order = await prisma.order.create({
       data: {
         orderId,
         customerName: `${orderFormData.firstName} ${orderFormData.lastName}`,
         customerId: user?.id || "guest",
         status: "pending",
-        shippingInfo: {
-          create: {
-            shippingAddress: orderFormData.streetAddress,
-            city: orderFormData.city,
-            state: orderFormData.province,
-            country: orderFormData.country,
-            postalCode: orderFormData.zipCode,
-            phone: orderFormData.phone,
-            notes: orderFormData.notes,
-          },
-        },
+        shippingId: shippingInfo.id,
         orderDetails: {
           create: cartItems.map((item: any) => ({
             productId: item.id,

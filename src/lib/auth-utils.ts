@@ -1,18 +1,18 @@
-import { jwtVerify, SignJWT } from "jose"
-import { cookies } from "next/headers"
-import type { NextRequest } from "next/server"
+import { jwtVerify, SignJWT } from "jose";
+import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
 
 // Secret key for JWT signing and verification
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "default_jwt_secret_key_change_this_in_production",
-)
+  process.env.JWT_SECRET || "default_jwt_secret_key_change_this_in_production"
+);
 
 export type JWTPayload = {
-  id: string
-  email: string
-  role: "user" | "admin"
-  name: string
-}
+  id: string;
+  email: string;
+  role: "user" | "admin";
+  name: string;
+};
 
 // Create a JWT token
 export async function createToken(payload: JWTPayload): Promise<string> {
@@ -20,67 +20,79 @@ export async function createToken(payload: JWTPayload): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d") // Token expires in 7 days
-    .sign(JWT_SECRET)
+    .sign(JWT_SECRET);
 }
 
 // Verify a JWT token
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
-    return payload as JWTPayload
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return payload as JWTPayload;
   } catch (error) {
-    console.error("Token verification failed:", error)
-    return null
+    console.error("Token verification failed:", error);
+    return null;
   }
 }
 
 // Get the authenticated user from the request
-export async function getAuthUser(req?: NextRequest): Promise<JWTPayload | null> {
+export async function getAuthUser(
+  req?: NextRequest
+): Promise<JWTPayload | null> {
   try {
     // Get token from cookies or Authorization header
-    let token: string | undefined
+    let token: string | undefined;
 
     if (req) {
       // For API routes and middleware
-      token = req.cookies.get("auth-token")?.value
+      token = req.cookies.get("auth-token")?.value;
 
       if (!token) {
-        const authHeader = req.headers.get("Authorization")
+        const authHeader = req.headers.get("Authorization");
         if (authHeader && authHeader.startsWith("Bearer ")) {
-          token = authHeader.substring(7)
+          token = authHeader.substring(7);
         }
       }
     } else {
       // For server components
-      const cookieStore = await cookies()
-      token = cookieStore.get("auth-token")?.value
+      const cookieStore = await cookies();
+      token = cookieStore.get("auth-token")?.value;
     }
 
     if (!token) {
-      return null
+      return null;
     }
 
-    return await verifyToken(token)
+    return await verifyToken(token);
   } catch (error) {
-    console.error("Get auth user error:", error)
-    return null
+    console.error("Get auth user error:", error);
+    return null;
   }
 }
 
 // Set auth token in cookies
 export async function setAuthCookie(token: string) {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
   cookieStore.set("auth-token", token, {
-    httpOnly: true,
+    // httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
     sameSite: "strict",
-  })
+  });
 }
 
 // Clear auth cookie
 export async function clearAuthCookie() {
-  const cookieStore = await cookies()
-  cookieStore.delete("auth-token")
+  const cookieStore = await cookies();
+
+  // Delete the auth-token cookie
+  // Next.js cookies().delete() only takes the name as argument
+  // But we need to set the cookie with the same path and attributes to properly delete it
+  cookieStore.set("auth-token", "", {
+    // httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    path: "/",
+    sameSite: "strict",
+  });
 }

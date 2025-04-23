@@ -132,18 +132,6 @@ export default function Header() {
                   New Arrivals
                 </Link>
                 <Link
-                  href="/women"
-                  className={`border-b-2 pb-1 text-sm ${pathname === "/women" ? "border-black" : "border-transparent"}`}
-                >
-                  Women
-                </Link>
-                <Link
-                  href="/men"
-                  className={`border-b-2 pb-1 text-sm ${pathname === "/men" ? "border-black" : "border-transparent"}`}
-                >
-                  Men
-                </Link>
-                <Link
                   href="/about"
                   className={`border-b-2 pb-1 text-sm ${pathname === "/about" ? "border-black" : "border-transparent"}`}
                 >
@@ -157,6 +145,16 @@ export default function Header() {
                     }`}
                   >
                     Admin
+                  </Link>
+                )}
+                {user.isAuthenticated && user.role !== "admin" && (
+                  <Link
+                    href="/order-history"
+                    className={`border-b-2 pb-1 text-sm font-medium text-primary ${
+                      pathname.startsWith("/admin") ? "border-primary" : "border-transparent"
+                    }`}
+                  >
+                    Order History
                   </Link>
                 )}
               </nav>
