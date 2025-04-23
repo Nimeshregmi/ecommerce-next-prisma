@@ -258,6 +258,20 @@ export default function Header() {
                   )}
                 </Link>
                 <Link
+                  href="/categories"
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary relative py-1",
+                    pathname === "/categories"
+                      ? "text-primary" 
+                      : "text-gray-600"
+                  )}
+                >
+                  Category
+                  {pathname === "/categories" && (
+                    <span className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary" />
+                  )}
+                </Link>
+                <Link
                   href="/new-arrivals"
                   className={cn(
                     "text-sm font-medium transition-colors hover:text-primary relative py-1",
