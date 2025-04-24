@@ -73,7 +73,7 @@ export async function getAuthUser(
 export async function setAuthCookie(token: string) {
   const cookieStore = await cookies();
   cookieStore.set("auth-token", token, {
-    // httpOnly: true,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
@@ -84,15 +84,5 @@ export async function setAuthCookie(token: string) {
 // Clear auth cookie
 export async function clearAuthCookie() {
   const cookieStore = await cookies();
-
-  // Delete the auth-token cookie
-  // Next.js cookies().delete() only takes the name as argument
-  // But we need to set the cookie with the same path and attributes to properly delete it
-  cookieStore.set("auth-token", "", {
-    // httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-    sameSite: "strict",
-  });
+  cookieStore.delete("auth-token");
 }

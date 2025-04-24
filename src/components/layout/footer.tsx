@@ -101,7 +101,7 @@ export default function Footer() {
             </Link>
           </div>
 
-          <div className="text-xs text-gray-500">© 2023 All Rights Reserved</div>
+          <div className="text-xs text-gray-500">© {new Date().getFullYear()} All Rights Reserved</div>
         </div>
       </div>
     </footer>
