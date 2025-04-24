@@ -35,18 +35,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/return-policy" className="text-gray-600 hover:text-gray-900">
-                  Return Policy
+                <Link href="/privacy-policy" className="text-gray-600 hover:text-gray-900">
+                Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/shipping-info" className="text-gray-600 hover:text-gray-900">
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
-                <Link href="/bulk-orders" className="text-gray-600 hover:text-gray-900">
-                  Bulk Orders
+                <Link href="/terms-of-service" className="text-gray-600 hover:text-gray-900">
+                Terms of Service
                 </Link>
               </li>
             </ul>
@@ -92,12 +87,6 @@ export default function Footer() {
             </Link>
             <Link href="/terms-of-service" className="hover:text-gray-900">
               Terms of Service
-            </Link>
-            <Link href="/sitemap-pages" className="hover:text-gray-900">
-              Sitemap Pages
-            </Link>
-            <Link href="/sitemap-products" className="hover:text-gray-900">
-              Sitemap Products
             </Link>
           </div>
 

@@ -133,6 +133,7 @@ export function PasswordForm() {
           duration: 5000,
         })
         form.reset()
+        router.push("/account")
       } else {
         toast({
           title: "Password change failed",
@@ -229,11 +230,12 @@ export function PasswordForm() {
                       {getStrengthLabel()}
                     </span>
                   </div>
-                  <Progress 
-                    value={passwordStrength} 
-                    className="h-1.5 w-full bg-gray-100" 
-                    indicatorClassName={cn("transition-all", getStrengthColor())}
-                  />
+                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <Progress 
+                      value={passwordStrength} 
+                      className={cn("h-full", getStrengthColor())}
+                    />
+                  </div>
                 </div>
               )}
               <FormMessage />

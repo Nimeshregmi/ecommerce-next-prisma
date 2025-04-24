@@ -65,13 +65,13 @@ export default async function AccountPage() {
                     <History className="mr-3 h-5 w-5 text-primary" />
                     <span>Order History</span>
                   </Link>
-                  <Link href="/account/addresses" className="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                  <Link href="/account/edit-info" className="flex items-center p-4 hover:bg-gray-50 transition-colors">
                     <Map className="mr-3 h-5 w-5 text-primary" />
-                    <span>Saved Addresses</span>
+                    <span>Edit Info</span>
                   </Link>
-                  <Link href="/account/settings" className="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                  <Link href="/account/change-password" className="flex items-center p-4 hover:bg-gray-50 transition-colors">
                     <Settings className="mr-3 h-5 w-5 text-primary" />
-                    <span>Account Settings</span>
+                    <span>Change Password</span>
                   </Link>
                   {user.role === 'admin' && (
                     <Link href="/admin" className="flex items-center p-4 hover:bg-gray-50 transition-colors">
