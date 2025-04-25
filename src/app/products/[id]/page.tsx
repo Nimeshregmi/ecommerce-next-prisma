@@ -59,7 +59,8 @@ export default async function ProductPage({ params }: { params: { id: string } }
                     objectFit="cover"
                     width={800}
                     height={400}
-                    className="object-cover"
+                    // fill
+                    className="w-full h-full object-cover"
                     priority
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
@@ -195,16 +196,6 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       <div>
                         <p className="font-medium text-gray-900">Free Shipping</p>
                         <p>On orders over $100</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <RefreshCw className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Easy Returns</p>
-                        <p>30-day return policy</p>
                       </div>
                     </div>
                     
