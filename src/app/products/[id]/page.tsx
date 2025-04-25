@@ -56,7 +56,9 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   <Image
                     src={product.image}
                     alt={product.productName}
-                    fill
+                    objectFit="cover"
+                    width={800}
+                    height={400}
                     className="object-cover"
                     priority
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -124,9 +126,9 @@ export default async function ProductPage({ params }: { params: { id: string } }
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Choose Color</h3>
                 <div className="flex gap-3">
-                  <button className="h-10 w-10 rounded-full border-2 border-white outline outline-2 outline-primary shadow-sm bg-black"></button>
-                  <button className="h-10 w-10 rounded-full border-2 border-white shadow-sm bg-[#5D4037]"></button>
-                  <button className="h-10 w-10 rounded-full border-2 border-white shadow-sm bg-[#546E7A]"></button>
+                  <button className="h-10 w-10 rounded-full border-2 border-white cursor-pointer outline-2 outline-primary shadow-sm bg-black"></button>
+                  <button className="h-10 w-10 rounded-full border-2 border-white cursor-pointer shadow-sm bg-[#5D4037]"></button>
+                  <button className="h-10 w-10 rounded-full border-2 border-white cursor-pointer shadow-sm bg-[#546E7A]"></button>
                 </div>
               </div>
               
@@ -140,7 +142,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
                     <button
                       key={size}
-                      className="flex h-11 min-w-[2.75rem] items-center justify-center rounded-md border border-gray-200 px-3 text-sm font-medium transition-colors hover:bg-gray-50"
+                      className="flex h-11 min-w-[2.75rem] cursor-pointer items-center justify-center rounded-md border border-gray-200 px-3 text-sm font-medium transition-colors hover:bg-gray-50"
                     >
                       {size}
                     </button>

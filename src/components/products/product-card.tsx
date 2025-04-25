@@ -21,7 +21,9 @@ export default function ProductCard({ product }: { product: Product }) {
           <Image
             src={product.image || "/placeholder.svg"}
             alt={product.productName}
-            fill
+            objectFit="cover"
+            width={400}
+            height={400}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             unoptimized
           />

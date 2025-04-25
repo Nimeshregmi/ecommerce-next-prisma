@@ -20,7 +20,7 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
   const [highlight, ...regularCategories] = categories;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Featured category - takes up the whole first row on mobile, 1/3 on desktop */}
       <div className="lg:col-span-1 lg:row-span-2">
         <Link
@@ -52,7 +52,7 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
       </div>
 
       {/* Grid of regular categories - takes up 2/3 of desktop space */}
-      <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
         {regularCategories.map((category, index) => {
           // Alternate between different card styles for visual interest
           const isAlternate = index % 3 === 0;
@@ -70,7 +70,7 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
                 {/* Text Content */}
                 <div className={cn(
                   "p-6 flex flex-col justify-center z-10",
-                  isAlternate ? "w-1/2" : "w-full"
+                  isAlternate ? "w-1/3" : "w-full"
                 )}>
                   <div className={cn(
                     "w-10 h-10 rounded-full mb-4 flex items-center justify-center",
@@ -98,14 +98,16 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
                 
                 {/* Image (only for alternate style) */}
                 {isAlternate && (
-                  <div className="relative w-1/2">
+                  <div className="relative w-1/3">
                     <div className="absolute inset-0 bg-gradient-to-l from-transparent to-white/30 z-10"></div>
                     {category.image ? (
                       <Image
                         src={category.image}
                         alt={category.categoryName}
-                        fill
-                        className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                        objectFit=""
+                        width={400}
+                        height={400}
+                        className="object-contain object-center transition-transform duration-700 group-hover:scale-110"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-400/30"></div>
