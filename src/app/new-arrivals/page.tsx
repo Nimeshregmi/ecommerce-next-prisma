@@ -75,7 +75,7 @@ export default async function NewArrivalsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((product) => (
                 <div key={product.id} className="relative">
-                  <div className="absolute top-2 left-2 z-10">
+                  <div className="absolute top-4 left-4 z-10">
                     <Badge className="bg-black text-white">New</Badge>
                   </div>
                   <ProductCard product={product} />
