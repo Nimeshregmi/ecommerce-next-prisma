@@ -2,7 +2,7 @@
 import { Marquee } from "@/components/ui/marquee";
 import { cn } from "@/lib/utils";
 import { reviews } from "./Constants/testemonialData";
-
+import Image from "next/image";
 
 
 const firstRow = reviews.slice(0, reviews.length / 2);
@@ -53,10 +53,10 @@ export function Testimonials() {
           What <span className="text-primary">People</span> Are Saying
         </h1>
       </div>
-      <div className="mb-6 text-xl dark:text-zinc-100 md:text-xl">
+      <div className="mb-6 text-xl flex dark:text-zinc-100 md:text-xl">
         Don’t just take our word for it. Here’s what{" "}
         <span className="font-bold">real people</span> are saying about
-        Fashion Fuel.
+        <Image src="/logo.png"  alt="Fashion Fuel Logo" className="ml-2 mr-2" width={100} height={20}/>.
       </div>
 
       <div className="w-full overflow-x-hidden">

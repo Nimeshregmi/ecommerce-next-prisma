@@ -32,7 +32,14 @@ export default async function AdminOrdersPage() {
       orderDetails: true,
     },
   })
-  
+  if (!ordersData) {
+    return (
+      <AdminLayout>
+        <h1 className="mb-8 text-2xl font-bold">Manage Orders</h1>
+        <p>No orders found.</p>
+      </AdminLayout>
+    )
+  }
   // Transform the date fields to match the expected types
   const orders = ordersData.map(order => ({
     ...order,

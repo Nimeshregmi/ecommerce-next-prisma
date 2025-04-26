@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Search,
@@ -166,8 +167,9 @@ export default function Header() {
                         href="/"
                         className="text-xl font-bold flex items-center"
                       >
-                        <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                          Fashion Fuel
+                        <span className="font-stretch-ultra-condensed bg-gradient-to-r  from-primary to-purple-600 bg-clip-text text-transparent">
+                          {/* Fashion Fuel */}
+                          <Image src="/logo.png" alt="Fashion Fuel Logo" width={30} height={30}/>
                         </span>
                       </Link>
                     </div>
@@ -252,17 +254,18 @@ export default function Header() {
                 href="/" 
                 className="group text-xl font-bold transition-all duration-300 hover:scale-105"
               >
-                <span className="bg-gradient-to-r from-primary via-indigo-500 to-purple-600 bg-clip-text text-transparent">
-                  Fashion Fuel
+                <span className=" bg-gradient-to-r from-primary via-indigo-500 to-purple-600 bg-clip-text text-transparent">
+                  {/* Fashion Fuel */}
+                  <Image src="/logo.png"  alt="Fashion Fuel Logo" width={150} height={60}/>
                 </span>
               </Link>
 
               {/* Desktop navigation */}
-              <nav className="hidden lg:flex items-center ml-12 space-x-8">
+              <nav className="hidden lg:flex items-center ml-8 space-x-8">
                 <Link
                   href="/products"
                   className={cn(
-                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                    "text-sm bg-gradient-to-r from-primary via-indigo-500 to-purple-600 bg-clip-text text-transparent font-bold transition-colors hover:text-primary relative py-1.5 px-1",
                     pathname === "/products" 
                       ? "text-primary" 
                       : "text-gray-600 hover:text-primary"
@@ -276,7 +279,7 @@ export default function Header() {
                 <Link
                   href="/categories"
                   className={cn(
-                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                    "text-sm font-bold transition-colors hover:text-primary relative py-1.5 px-1",
                     pathname === "/categories"
                       ? "text-primary"
                       : "text-gray-600 hover:text-primary"
@@ -290,7 +293,7 @@ export default function Header() {
                 <Link
                   href="/new-arrivals"
                   className={cn(
-                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                    "text-sm font-bold transition-colors hover:text-primary relative py-1.5 px-1",
                     pathname === "/new-arrivals"
                       ? "text-primary"
                       : "text-gray-600 hover:text-primary"
@@ -304,7 +307,7 @@ export default function Header() {
                 <Link
                   href="/about"
                   className={cn(
-                    "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                    "text-sm font-bold transition-colors hover:text-primary relative py-1.5 px-1",
                     pathname === "/about" 
                       ? "text-primary" 
                       : "text-gray-600 hover:text-primary"
@@ -319,7 +322,7 @@ export default function Header() {
                   <Link
                     href="/admin"
                     className={cn(
-                      "text-sm font-semibold transition-colors hover:text-primary relative py-1.5 px-1",
+                      "text-sm font-bold transition-colors hover:text-primary relative py-1.5 px-1",
                       pathname.startsWith("/admin")
                         ? "text-primary"
                         : "text-gray-600 hover:text-primary"
