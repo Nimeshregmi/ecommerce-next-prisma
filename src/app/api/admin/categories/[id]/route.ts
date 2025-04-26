@@ -65,49 +65,58 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // Delete a category (admin only)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const user = await getAuthUser(req)
-
+    // Check authentication
+    const user = await getAuthUser(request)
     if (!user || user.role !== "admin") {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 })
     }
-
-    // Check if category exists
-    const existingCategory = await prisma.productCategory.findUnique({
-      where: { id: params.id },
+    
+    // Extract the ID directly from the URL path
+    const url = new URL(request.url)
+    const pathParts = url.pathname.split('/')
+    const categoryId = pathParts[pathParts.length - 1]
+    
+    if (!categoryId) {
+      return NextResponse.json({ success: false, error: "Category ID is required" }, { status: 400 })
+    }
+    
+    // Verify the category exists
+    const category = await prisma.productCategory.findUnique({
+      where: { id: categoryId }
     })
-
-    if (!existingCategory) {
+    
+    if (!category) {
       return NextResponse.json({ success: false, error: "Category not found" }, { status: 404 })
     }
-
-    // Check if category has products
-    const productsCount = await prisma.product.count({
-      where: { categoryId: params.id },
+    
+    // Check for products using this category
+    const productsWithCategory = await prisma.product.count({
+      where: { categoryId: categoryId }
     })
-
-    if (productsCount > 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Cannot delete category with ${productsCount} products. Please reassign or delete the products first.`,
-        },
-        { status: 400 },
-      )
+    
+    if (productsWithCategory > 0) {
+      return NextResponse.json({
+        success: false,
+        error: `Cannot delete category with ${productsWithCategory} products. Reassign or delete the products first.`
+      }, { status: 400 })
     }
-
-    // Delete category
+    
+    // Delete the category
     await prisma.productCategory.delete({
-      where: { id: params.id },
+      where: { id: categoryId }
     })
-
+    
     return NextResponse.json({
       success: true,
-      message: "Category deleted successfully",
+      message: "Category deleted successfully"
     })
   } catch (error) {
     console.error("Delete category error:", error)
-    return NextResponse.json({ success: false, error: "Failed to delete category" }, { status: 500 })
+    return NextResponse.json({ 
+      success: false, 
+      error: `Failed to delete category: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    }, { status: 500 })
   }
 }

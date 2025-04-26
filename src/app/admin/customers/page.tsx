@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { getAuthUser } from "@/lib/auth-utils"
 import { prisma } from "@/lib/prisma"
-import AdminCustomersTable from "@/components/admin/customers-table"
+import CustomersTable from "@/components/admin/customers-table"
 import AdminLayout from "@/components/admin/admin-layout"
 
 export const metadata: Metadata = {
@@ -41,7 +41,7 @@ export default async function AdminCustomersPage() {
   return (
     <AdminLayout>
       <h1 className="mb-8 text-2xl font-bold">Manage Customers</h1>
-      <AdminCustomersTable initialCustomers={customers} />
+      <CustomersTable initialCustomers={customers} />
     </AdminLayout>
   )
 }

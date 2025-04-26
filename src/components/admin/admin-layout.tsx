@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Users className="mr-2 h-4 w-4" />
                 Customers
               </Link>
-              <Link href="/admin/settings" className="flex items-center rounded-md px-3 py-2 text-sm hover:bg-gray-100">
+              <Link href="/account" className="flex items-center rounded-md px-3 py-2 text-sm hover:bg-gray-100">
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>

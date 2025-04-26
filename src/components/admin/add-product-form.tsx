@@ -175,6 +175,7 @@ export default function AddProductForm({
             value={formData.productStatus}
             onValueChange={(value) => handleSelectChange("productStatus", value)}
             disabled={isLoading}
+            required
           >
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
@@ -193,6 +194,7 @@ export default function AddProductForm({
             value={formData.categoryId}
             onValueChange={(value) => handleSelectChange("categoryId", value)}
             disabled={isLoading}
+            required
           >
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
@@ -215,6 +217,7 @@ export default function AddProductForm({
           value={formData.image}
           onChange={handleChange}
           disabled={isLoading}
+          required
           placeholder="https://example.com/image.jpg"
         />
         <p className="text-xs text-muted-foreground">Enter a URL for the product image</p>

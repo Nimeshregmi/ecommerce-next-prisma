@@ -6,41 +6,36 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+type User = {
+  id: string
+  role: string
+  loginStatus: string
+}
+
 type Customer = {
   id: string
   customerName: string
   email: string
   address: string
   accountBalance: number
+  userId: string
+  creditCardInfo: string | null
+  shippingInfo: string | null
+  user?: {
+    id: string
+    role: string
+    loginStatus: string
+  }
 }
 
-export default function CustomersTable() {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
+interface CustomersTableProps {
+  initialCustomers: Customer[]
+}
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setCustomers([
-        {
-          id: "1",
-          customerName: "John Doe",
-          email: "john@example.com",
-          address: "123 Main St, Anytown, USA",
-          accountBalance: 0,
-        },
-        {
-          id: "2",
-          customerName: "Jane Smith",
-          email: "jane@example.com",
-          address: "456 Oak Ave, Somewhere, USA",
-          accountBalance: 0,
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
-  }, [])
+export default function CustomersTable({ initialCustomers }: CustomersTableProps) {
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers || [])
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -70,13 +65,14 @@ export default function CustomersTable() {
                 <TableHead>Email</TableHead>
                 <TableHead>Address</TableHead>
                 <TableHead>Balance</TableHead>
+                <TableHead>Account Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredCustomers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
+                  <TableCell colSpan={6} className="text-center">
                     No customers found
                   </TableCell>
                 </TableRow>
@@ -86,7 +82,15 @@ export default function CustomersTable() {
                     <TableCell className="font-medium">{customer.customerName}</TableCell>
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>{customer.address}</TableCell>
-                    <TableCell>RS.{customer.accountBalance.toFixed(0)}</TableCell>
+                    <TableCell>RS.{customer.accountBalance.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        customer.user?.loginStatus === "active" ? 'bg-green-100 text-green-800' : 
+                        customer.user?.loginStatus === "inactive" ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {customer.user?.loginStatus || "unknown"}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"

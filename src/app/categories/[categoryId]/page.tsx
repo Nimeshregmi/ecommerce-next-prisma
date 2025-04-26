@@ -58,12 +58,12 @@ export default async function CategoryPage({ params }: Props) {
         <div className="relative h-[300px] w-full md:h-[400px]">
           {category.image ? (
             <>
-              <Image
+              <img
                 src={category.image}
                 alt={category.categoryName}
-                fill
-                className="object-cover object-center"
-                priority
+                className=" object-fill object-center"
+                width={1920}
+                height={1080}
                 sizes="100vw"
               />
               <div className="absolute inset-0 bg-black/30" />

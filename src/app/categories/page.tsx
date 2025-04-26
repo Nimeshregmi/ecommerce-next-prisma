@@ -100,10 +100,9 @@ export default async function CategoriesPage() {
                   {category.image ? (
                     <>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <Image
+                      <img
                         src={category.image}
                         alt={category.categoryName}
-                        objectFit="cover"
                         width={400}
                         height={300}
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

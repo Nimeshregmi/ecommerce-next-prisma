@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import { Star, Heart, Share2, ShoppingBag, ChevronRight, Truck, RefreshCw, Shield } from "lucide-react"
 import AddToCartButton from "@/components/products/add-to-cart-button"
 import { getProductById } from "@/lib/data/products"
@@ -53,15 +52,13 @@ export default async function ProductPage({ params }: { params: { id: string } }
             <div className="bg-white rounded-xl overflow-hidden shadow-sm">
               <div className="relative aspect-square">
                 {product.image ? (
-                  <Image
+                  <img
                     src={product.image}
                     alt={product.productName}
-                    objectFit="cover"
                     width={800}
                     height={400}
                     // fill
                     className="w-full h-full object-cover"
-                    priority
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 ) : (

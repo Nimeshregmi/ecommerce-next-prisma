@@ -176,7 +176,7 @@ export default async function CheckoutPage() {
                 </div>
                 <div className="mt-3 flex justify-center space-x-2">
                   <img src="/images/visa.svg" alt="Visa" className="h-6" />
-                  <img src="/images/mastercard.svg" alt="Mastercard" className="h-6" />
+                  <img src="/images/mastercardsvg.svg" alt="Mastercard" className="h-6" />
                   <img src="/images/amex.svg" alt="American Express" className="h-6" />
                 </div>
               </div>

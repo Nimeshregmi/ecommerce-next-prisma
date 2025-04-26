@@ -1,7 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { formatCurrency } from "@/lib/utils";
-import { array } from "zod";
 import AddToCartButton from "./add-to-cart-button";
 
 type Product = {
@@ -18,16 +16,15 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="m-10 flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
       <Link
         href={`/products/${product.id}`}
-        className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
+        className="relative mx-1 mt-1 flex h-70  overflow-hidden rounded-xl"
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        <Image
+        <img
           src={product.image || "/placeholder.jpg"}
           alt={product.productName}
           width={400}
           height={300}
-          className="w-full h-full object-cover"
-          priority
+          className="w-full h-full object-cover "
         />
         <span className="absolute top-0 left-0 m-2 rounded-full bg-black px-2 text-center text-sm font-medium text-white">
           20% OFF
