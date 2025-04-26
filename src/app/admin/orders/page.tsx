@@ -32,18 +32,17 @@ export default async function AdminOrdersPage() {
       orderDetails: true,
     },
   })
-  if (!ordersData) {
-    return (
-      <AdminLayout>
-        <h1 className="mb-8 text-2xl font-bold">Manage Orders</h1>
-        <p>No orders found.</p>
-      </AdminLayout>
-    )
-  }
-  // Transform the date fields to match the expected types
+  
+  // Transform the date fields to serialize them properly for client components
   const orders = ordersData.map(order => ({
     ...order,
-    dateShipped: order.dateShipped ? order.dateShipped.toISOString() : null
+    dateCreated: order.dateCreated.toISOString(),
+    dateShipped: order.dateShipped ? order.dateShipped.toISOString() : null,
+    // Ensure all nested objects are also serialized
+    orderDetails: order.orderDetails.map(detail => ({
+      ...detail,
+      // Add any Date fields from orderDetails that need serialization here
+    }))
   }))
 
   return (

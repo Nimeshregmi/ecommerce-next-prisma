@@ -5,7 +5,6 @@ import { Eye, Check, X, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { getOrders } from "@/lib/orders"
 import { updateOrderStatusAction } from "@/lib/order-actions"
 import {
   Dialog,
@@ -22,34 +21,44 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+type OrderDetail = {
+  id: string
+  orderId: string
+  productId: string
+  productName: string
+  quantity: number
+  unitCost: number
+  subtotal: number
+}
+
 type Order = {
   id: string
   orderId: string
-  dateCreated: Date
+  dateCreated: string // Changed from Date to string to avoid serialization issues
   dateShipped: string | null
   customerName: string
   status: string
-  orderDetails: any[]
+  orderDetails: OrderDetail[]
 }
 
 interface OrdersTableProps {
-  initialOrders?: Order[]
+  initialOrders: Order[]
 }
 
   /**
    * Renders a table of orders with search, filtering, and status updating
    * functionality.
    *
-   * @param {Order[]} [initialOrders=[]] - Initial list of orders to display
+   * @param {Order[]} initialOrders - Initial list of orders to display
    * @returns {JSX.Element}
    */
-export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProps) {
+export default function AdminOrdersTable({ initialOrders }: OrdersTableProps) {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
-  const [isLoading, setIsLoading] = useState(!initialOrders.length)
+  const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [newStatus, setNewStatus] = useState<string>("") // Fix syntax error by adding closing parenthesis
+  const [newStatus, setNewStatus] = useState<string>("") 
   const [isUpdating, setIsUpdating] = useState(false)
 
   // Handler to open the confirmation dialog when changing status
@@ -91,24 +100,6 @@ export default function AdminOrdersTable({ initialOrders = [] }: OrdersTableProp
     setSelectedOrder(null)
     setNewStatus("")
   }
-
-  useEffect(() => {
-    // Only fetch orders if none were provided as props
-    if (initialOrders.length === 0) {
-      const loadOrders = async () => {
-        try {
-          const data = await getOrders()
-          // setOrders(data)
-        } catch (error) {
-          console.error("Failed to load orders:", error)
-        } finally {
-          setIsLoading(false)
-        }
-      }
-
-      loadOrders()
-    }
-  }, [initialOrders.length])
 
   const filteredOrders = orders.filter(
     (order) =>
