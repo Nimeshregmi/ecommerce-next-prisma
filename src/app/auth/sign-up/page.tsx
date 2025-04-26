@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth-actions"
 import SignUpForm from "@/components/auth/sign-up-form"
@@ -17,18 +18,34 @@ export default async function SignUpPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-200px)] max-w-md flex-col items-center justify-center px-4 py-12">
-      <div className="w-full rounded-lg bg-white p-6 shadow-sm">
-        <h1 className="mb-6 text-2xl font-bold">Sign Up</h1>
-        <SignUpForm />
+    <div className="min-h-screen bg-gradient-to-r from-white via-gray-50 to-white flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl shadow-xl bg-white flex flex-col">
+        
+        
+        <div className="p-8">
+          <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">Create Account</h1>
+          <p className="text-center mb-6 text-gray-500 text-sm">Join Fashion Fuel and discover amazing products</p>
+          <SignUpForm />
+          <div className="mt-6 text-center">
+            <div className="relative flex py-4 items-center">
+              <div className="flex-grow border-t border-gray-200"></div>
+              <span className="flex-shrink mx-4 text-gray-400 text-xs">OR</span>
+              <div className="flex-grow border-t border-gray-200"></div>
+            </div>
+            
+            <p className="text-gray-600 text-sm">
+              Already have an account?{" "}
+              <Link href="/auth/sign-in" className="text-primary font-medium hover:underline transition">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
-
-      <p className="mt-6 text-center text-sm text-gray-600">
-        Already have an account?{" "}
-        <Link href="/auth/sign-in" className="text-primary hover:underline">
-          Sign in
-        </Link>
-      </p>
+      
+      <div className="mt-6 text-center text-xs text-gray-500 max-w-md">
+        <p>By signing up, you agree to our <Link href="/terms-of-service" className="text-primary hover:underline">Terms of Service</Link> and <Link href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link></p>
+      </div>
     </div>
   )
 }

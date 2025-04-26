@@ -7,6 +7,7 @@ import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
 import TopLoadingBar from "@/components/layout/TopLoadinBar"
 
+export const revalidate = 0;
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {

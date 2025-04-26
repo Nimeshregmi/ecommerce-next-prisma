@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import AddProductForm from "@/components/admin/add-product-form"
-import Image from "next/image"
+// import Image from "next/image"
 import { formatCurrency } from "@/lib/utils"
 
 type Product = {
@@ -157,10 +157,10 @@ export default function ProductsTable({
                     <TableCell>
                       <div className="relative h-10 w-10 overflow-hidden rounded-md bg-gray-100">
                         {product.image ? (
-                          <Image
+                          <img
                             src={product.image || "/placeholder.svg"}
                             alt={product.productName}
-                            fill
+                            // fill
                             className="object-cover"
                           />
                         ) : (

@@ -1,22 +1,28 @@
-import Link from "next/link"
-import { ChevronRight } from "lucide-react"
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { Button } from "../ui/button";
 
 type Category = {
-  id: string
-  categoryId: string
-  categoryName: string
-  image?: string | null
-}
+  id: string;
+  categoryId: string;
+  categoryName: string;
+  image?: string | null;
+};
 
-export default function CategoryGrid({ categories }: { categories: Category[] }) {
+export default function CategoryGrid({
+  categories,
+}: {
+  categories: Category[];
+}) {
   // If no categories are provided, don't render anything
   if (categories.length === 0) {
-    return null
+    return null;
   }
 
   return (
+    <>
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {categories.map((category) => (
+      {categories.slice(0, 4).map((category) => (
         <Link
           key={category.id}
           href={`/categories/${category.categoryId}`}
@@ -36,7 +42,9 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
           </div>
           <div className="absolute bottom-0 left-0 right-0 z-20 p-6 text-white">
             <h3 className="text-2xl font-bold mb-2">{category.categoryName}</h3>
-            <p className="text-sm text-white/80 mb-4">Discover the latest trends</p>
+            <p className="text-sm text-white/80 mb-4">
+              Discover the latest trends
+            </p>
             <div className="flex items-center text-sm font-medium">
               <span>Shop Now</span>
               <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -44,6 +52,18 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
           </div>
         </Link>
       ))}
+      
     </div>
-  )
+    {categories.length > 4 && (
+        <Link
+          href="/categories"
+          className="flex items-center justify-center h-auto w-auto my-4 overflow-hidden rounded-2xl  transition duration-200"
+        >
+          <Button >
+            View All Categories
+          </Button>
+        </Link>
+      )}
+    </>
+  );
 }
