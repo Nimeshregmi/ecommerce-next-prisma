@@ -30,8 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         productPrice: Number.parseFloat(data.productPrice),
         productStatus: data.productStatus,
         categoryId: data.categoryId,
-        description: data.description,
-        imageUrl: data.imageUrl,
+        image: data.imageUrl,
       },
       include: {
         category: true,
@@ -50,34 +49,96 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // Delete a product (admin only)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const user = await getAuthUser(req)
-
+    // Check authentication
+    const user = await getAuthUser(request)
     if (!user || user.role !== "admin") {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 })
     }
-
+    
+    // Extract the ID directly from the URL path to avoid params.id error
+    const url = new URL(request.url)
+    const pathParts = url.pathname.split('/')
+    const productId = pathParts[pathParts.length - 1]
+    
+    if (!productId) {
+      return NextResponse.json({ success: false, error: "Product ID is required" }, { status: 400 })
+    }
+    
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id: productId }
     })
-
+    
     if (!existingProduct) {
       return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 })
     }
-
-    // Delete product
-    await prisma.product.delete({
-      where: { id: params.id },
+    
+    // Check if product has associated order details (completed orders)
+    const orderDetailsCount = await prisma.orderDetail.count({
+      where: { productId: productId }
     })
-
+    
+    if (orderDetailsCount > 0) {
+      return NextResponse.json({
+        success: false,
+        error: `Cannot delete product that is referenced in ${orderDetailsCount} completed orders. This would violate data integrity.`,
+      }, { status: 400 })
+    }
+    
+    // Use a transaction to ensure everything happens atomically
+    const result = await prisma.$transaction(async (tx: { shoppingCartItem: { deleteMany: (arg0: { where: { productId: string } | { productId: string } }) => any }; product: { delete: (arg0: { where: { id: string } }) => any } }) => {
+      // Check for product in cart items
+      let deletedCartItems = 0;
+      
+      try {
+        // Try with cartItem model
+        const deletedItems = await tx.shoppingCartItem.deleteMany({
+          where: { productId: productId }
+        });
+        deletedCartItems = deletedItems.count;
+      } catch (e) {
+        // If cartItem doesn't work, try with shoppingCartItem
+        try {
+          const deletedItems = await tx.shoppingCartItem.deleteMany({
+            where: { productId: productId }
+          });
+          deletedCartItems = deletedItems.count;
+        } catch (innerError) {
+          console.error("Error deleting cart items:", innerError);
+          // Continue even if cart item deletion fails - we'll log it but still try to delete the product
+        }
+      }
+      
+      // Delete the product
+      const deletedProduct = await tx.product.delete({
+        where: { id: productId }
+      });
+      
+      return { deletedProduct, deletedCartItems };
+    });
+    
     return NextResponse.json({
       success: true,
-      message: "Product deleted successfully",
-    })
+      message: result.deletedCartItems > 0 
+        ? `Product deleted successfully. Also removed from ${result.deletedCartItems} shopping carts.` 
+        : "Product deleted successfully."
+    });
   } catch (error) {
-    console.error("Delete product error:", error)
-    return NextResponse.json({ success: false, error: "Failed to delete product" }, { status: 500 })
+    console.error("Delete product error:", error);
+    
+    // Check for specific error types
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2003') {
+      return NextResponse.json({ 
+        success: false, 
+        error: "This product cannot be deleted because it's referenced in other parts of the system." 
+      }, { status: 400 });
+    }
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: `Failed to delete product: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    }, { status: 500 });
   }
 }

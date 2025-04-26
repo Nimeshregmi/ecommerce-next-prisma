@@ -77,7 +77,7 @@ export async function DELETE(request: NextRequest) {
     const url = new URL(request.url)
     const pathParts = url.pathname.split('/')
     const categoryId = pathParts[pathParts.length - 1]
-    
+    console.log("Category ID to delete:", categoryId);
     if (!categoryId) {
       return NextResponse.json({ success: false, error: "Category ID is required" }, { status: 400 })
     }
