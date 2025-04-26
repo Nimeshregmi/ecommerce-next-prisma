@@ -162,3 +162,25 @@
 .animate-scroll-down {
   animation: scroll-down 1.5s infinite ease-in-out;
 }
+@theme {
+  --animate-marqueeobj: marqueeobj 20s linear infinite;
+  --animate-marqueeobj-vertical: marquee-verticalobj 20s linear infinite;
+
+  @keyframes marqueeobj {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes marquee-verticalobj {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
