@@ -24,7 +24,7 @@ export default function ProductsPage() {
   const [activeCategory, setActiveCategory] = useState("all")
   
   // Debounce search query to avoid too many API calls
-  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000)
 
   // Fetch categories on mount
   useEffect(() => {

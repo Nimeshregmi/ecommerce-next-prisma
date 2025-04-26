@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { clearUser, setUser } from "@/redux/features/user-slice";
-import SearchBar from "@/components/search-bar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +33,6 @@ type Category = {
 };
 
 export default function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -143,9 +141,7 @@ export default function Header() {
             : "bg-gradient-to-r from-gray-50 to-white"
         )}
       >
-        {isSearchOpen ? (
-          <SearchBar onClose={() => setIsSearchOpen(false)} />
-        ) : (
+        
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-6">
             <div className="flex items-center">
               {/* Mobile menu */}
@@ -340,8 +336,9 @@ export default function Header() {
 
             <div className="flex items-center space-x-3">
               <button
-                onClick={() => setIsSearchOpen(true)}
-                className="rounded-full p-2 hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
+                type="button"
+                onClick={() => router.push("/products")}
+                className="rounded-full cursor-pointer p-2 hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
                 aria-label="Search"
               >
                 <Search className="h-[18px] w-[18px]" />
@@ -451,7 +448,7 @@ export default function Header() {
               </Link>
             </div>
           </div>
-        )}
+        
       </header>
     </>
   );
