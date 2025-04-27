@@ -32,6 +32,7 @@ model Customer {
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders         Order[]
   shoppingCarts  ShoppingCart[]
+  wishlists      Wishlist[]
 
   @@map("customers")
 }
@@ -124,6 +125,7 @@ model Product {
   category      ProductCategory    @relation(fields: [categoryId], references: [id])
   cartItems     ShoppingCartItem[]
   orders        Order[]            @relation("OrderToProduct")
+  wishlistItems WishlistItem[]
 
   @@map("products")
 }
@@ -136,4 +138,27 @@ model ProductCategory {
   products     Product[]
 
   @@map("product_categories")
+}
+
+model Wishlist {
+  id         String         @id @default(uuid())
+  customerId String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items      WishlistItem[]
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String
+  productId  String
+  addedAt    DateTime @default(now())
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@map("wishlist_items")
 }

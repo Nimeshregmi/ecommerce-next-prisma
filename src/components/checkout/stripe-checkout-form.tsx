@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -72,32 +70,30 @@ export default function StripeCheckoutForm({ cartItems }: { cartItems: CartItem[
 
     setIsProcessing(true)
 
-    // In a real app, you would use Stripe.js to handle payment securely
-    // This is just a demo that simulates a payment process
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Create order
-      const response = await fetch("/api/orders", {
+      // First, create a checkout session with Stripe
+      const response = await fetch("/api/stripe/checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          items: cartItems.map((item) => ({
-            productId: item.product.id,
+          cartItems: cartItems.map((item) => ({
+            product: {
+              id: item.product.id,
+              productName: item.product.productName,
+              productPrice: item.product.productPrice,
+            },
             quantity: item.quantity,
           })),
           shippingInfo: {
-            // This would normally come from a previous step
-            // For demo purposes, we're using placeholder values
+            // In a real app, this would come from a previous step
+            // For this demo, we're using placeholder values
             address: "123 Main St",
-            city: "New York",
-            state: "NY",
-            country: "USA",
-            postalCode: "10001",
+            city: "Mumbai",
+            state: "Maharashtra",
+            country: "India",
+            postalCode: "400001",
             phone: "555-123-4567",
           },
         }),
@@ -105,14 +101,17 @@ export default function StripeCheckoutForm({ cartItems }: { cartItems: CartItem[
 
       const data = await response.json()
 
-      if (data.success) {
-        toast({
-          title: "Payment successful",
-          description: "Your order has been placed successfully",
-        })
-        router.push(`/order-confirmation/${data.data.id}`)
+      if (data.success && data.url) {
+        // In a real implementation with Stripe.js, we would redirect to Stripe hosted page
+        // For this demo, we'll simulate success and redirect to the success page
+        
+        // If using real Stripe checkout, we would use:
+        // window.location.href = data.url
+        
+        // For demo purposes, redirect directly to success with the session ID
+        router.push(`/checkout/success?session_id=${encodeURIComponent(data.url.split("session_id=")[1] || "demo_session")}`)
       } else {
-        throw new Error(data.error || "Failed to create order")
+        throw new Error(data.error || "Failed to create checkout session")
       }
     } catch (error) {
       console.error("Payment error:", error)
