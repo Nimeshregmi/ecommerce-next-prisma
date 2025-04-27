@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import AddToCartButton from "./add-to-cart-button";
 
 type Product = {
@@ -16,7 +15,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="m-10 flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
       <Link
         href={`/products/${product.id}`}
-        className="relative mx-1 mt-1 flex h-70  overflow-hidden rounded-xl"
+        className="relative mx-1 mt-1 flex h-70 overflow-hidden rounded-xl"
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <img
@@ -36,7 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.productName}
           </h5>
         </div>
-        <div className="mt-2 mb-5 flex  items-center justify-between">
+        <div className="mt-2 mb-5 flex items-center justify-between">
           <p>
             <span className="text-xl font-bold text-slate-900">
               ${product.productPrice}

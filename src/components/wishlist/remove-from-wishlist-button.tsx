@@ -11,11 +11,11 @@ export default function RemoveFromWishlistButton({ itemId }: { itemId: string })
   const { toast } = useToast()
   const router = useRouter()
 
-  const handleRemoveFromWishlist = async () => {
+  const handleRemove = async () => {
     setIsRemoving(true)
 
     try {
-      const response = await fetch(`/api/wishlist/items/${itemId}`, {
+      const response = await fetch(`/api/wishlist?id=${itemId}`, {
         method: "DELETE",
       })
 
@@ -24,10 +24,9 @@ export default function RemoveFromWishlistButton({ itemId }: { itemId: string })
       if (data.success) {
         toast({
           title: "Removed from wishlist",
-          description: "The item has been removed from your wishlist",
+          description: "Item has been removed from your wishlist",
         })
-        
-        // Refresh the page to update wishlist items
+        // Refresh page to update wishlist
         router.refresh()
       } else {
         toast({
@@ -49,14 +48,19 @@ export default function RemoveFromWishlistButton({ itemId }: { itemId: string })
   }
 
   return (
-    <Button
-      onClick={handleRemoveFromWishlist}
+    <Button 
+      onClick={handleRemove} 
+      variant="outline" 
+      size="sm"
       disabled={isRemoving}
-      variant="secondary"
-      size="icon"
-      className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
+      className="text-red-500 border-gray-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
     >
-      <Trash2 className="h-4 w-4" />
+      {isRemoving ? (
+        <div className="h-4 w-4 rounded-full border-2 border-t-red-500 border-r-gray-200 border-b-gray-200 border-l-gray-200 animate-spin"></div>
+      ) : (
+        <Trash2 className="h-4 w-4 mr-2" />
+      )}
+      {isRemoving ? "Removing..." : "Remove"}
     </Button>
   )
 }

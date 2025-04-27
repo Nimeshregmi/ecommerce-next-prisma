@@ -41,7 +41,7 @@ try {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "mock_key_for_development");
 
 // Currency formatting options
-const currencyOptions = {
+const currencyOptions: Intl.NumberFormatOptions = {
   style: "currency",
   currency: "INR",
   minimumFractionDigits: 0,

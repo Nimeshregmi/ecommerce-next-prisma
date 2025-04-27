@@ -71,48 +71,12 @@ export default function StripeCheckoutForm({ cartItems }: { cartItems: CartItem[
     setIsProcessing(true)
 
     try {
-      // First, create a checkout session with Stripe
-      const response = await fetch("/api/stripe/checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cartItems: cartItems.map((item) => ({
-            product: {
-              id: item.product.id,
-              productName: item.product.productName,
-              productPrice: item.product.productPrice,
-            },
-            quantity: item.quantity,
-          })),
-          shippingInfo: {
-            // In a real app, this would come from a previous step
-            // For this demo, we're using placeholder values
-            address: "123 Main St",
-            city: "Mumbai",
-            state: "Maharashtra",
-            country: "India",
-            postalCode: "400001",
-            phone: "555-123-4567",
-          },
-        }),
-      })
-
-      const data = await response.json()
-
-      if (data.success && data.url) {
-        // In a real implementation with Stripe.js, we would redirect to Stripe hosted page
-        // For this demo, we'll simulate success and redirect to the success page
-        
-        // If using real Stripe checkout, we would use:
-        // window.location.href = data.url
-        
-        // For demo purposes, redirect directly to success with the session ID
-        router.push(`/checkout/success?session_id=${encodeURIComponent(data.url.split("session_id=")[1] || "demo_session")}`)
-      } else {
-        throw new Error(data.error || "Failed to create checkout session")
-      }
+      // Create a mock order ID for demonstration purposes
+      // In a real implementation, this would come from the Stripe API
+      const mockOrderId = `order_${Math.random().toString(36).substring(2, 15)}`
+      
+      // Redirect to success page with the mock order ID
+      router.push(`/checkout/success?session_id=${mockOrderId}`)
     } catch (error) {
       console.error("Payment error:", error)
       toast({

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getAuthUser } from "@/lib/auth-utils"
+import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { getAuthUser } from "@/lib/auth-utils"
 
-// Get user's wishlist
+// Get user's wishlist items
 export async function GET(req: NextRequest) {
   try {
     const user = await getAuthUser(req)
@@ -14,7 +14,9 @@ export async function GET(req: NextRequest) {
     // Get customer ID from user ID
     const customer = await prisma.customer.findFirst({
       where: {
-        userId: user.id,
+        user: {
+          id: user.id,
+        },
       },
     })
 
@@ -22,43 +24,35 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
     }
 
-    // Get or create wishlist
+    // First, get or create the customer's wishlist
     let wishlist = await prisma.wishlist.findFirst({
-      where: { customerId: customer.id },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+      where: { 
+        customerId: customer.id 
+      }
     })
 
     if (!wishlist) {
+      // Create a wishlist if one doesn't exist
       wishlist = await prisma.wishlist.create({
         data: {
-          customerId: customer.id,
-        },
-        include: {
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
+          customerId: customer.id
+        }
       })
     }
 
+    // Get all wishlist items with product details
+    const wishlistItems = await prisma.wishlistItem.findMany({
+      where: { 
+        wishlistId: wishlist.id 
+      },
+      include: {
+        product: true,
+      },
+    })
+
     return NextResponse.json({
       success: true,
-      data: {
-        id: wishlist.id,
-        items: wishlist.items.map((item) => ({
-          id: item.id,
-          addedAt: item.addedAt,
-          product: item.product,
-        })),
-      },
+      data: wishlistItems,
     })
   } catch (error) {
     console.error("Get wishlist error:", error)
@@ -75,10 +69,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
-    const { productId } = await req.json()
+    const body = await req.json()
+    const { productId } = body
 
     if (!productId) {
       return NextResponse.json({ success: false, error: "Product ID is required" }, { status: 400 })
+    }
+
+    // Get customer ID from user ID
+    const customer = await prisma.customer.findFirst({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+    })
+
+    if (!customer) {
+      return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
     }
 
     // Check if product exists
@@ -90,10 +98,77 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 })
     }
 
+    // Get or create the customer's wishlist
+    let wishlist = await prisma.wishlist.findFirst({
+      where: { customerId: customer.id }
+    })
+
+    if (!wishlist) {
+      wishlist = await prisma.wishlist.create({
+        data: {
+          customerId: customer.id
+        }
+      })
+    }
+
+    // Check if item is already in wishlist
+    const existingItem = await prisma.wishlistItem.findFirst({
+      where: {
+        wishlistId: wishlist.id,
+        productId: product.id,
+      },
+    })
+
+    if (existingItem) {
+      return NextResponse.json({
+        success: false,
+        error: "Item already in wishlist",
+      }, { status: 400 })
+    }
+
+    // Add to wishlist
+    const wishlistItem = await prisma.wishlistItem.create({
+      data: {
+        wishlistId: wishlist.id,
+        productId: product.id,
+      },
+      include: {
+        product: true,
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      data: wishlistItem,
+    })
+  } catch (error) {
+    console.error("Add to wishlist error:", error)
+    return NextResponse.json({ success: false, error: "Failed to add to wishlist" }, { status: 500 })
+  }
+}
+
+// Remove item from wishlist
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await getAuthUser(req)
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const url = new URL(req.url)
+    const itemId = url.searchParams.get('id')
+
+    if (!itemId) {
+      return NextResponse.json({ success: false, error: "Item ID is required" }, { status: 400 })
+    }
+
     // Get customer ID from user ID
     const customer = await prisma.customer.findFirst({
       where: {
-        userId: user.id,
+        user: {
+          id: user.id,
+        },
       },
     })
 
@@ -101,75 +176,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Customer not found" }, { status: 404 })
     }
 
-    // Get or create wishlist
-    let wishlist = await prisma.wishlist.findFirst({
-      where: { customerId: customer.id },
+    // Get the customer's wishlist first
+    const wishlist = await prisma.wishlist.findFirst({
+      where: { customerId: customer.id }
     })
 
     if (!wishlist) {
-      wishlist = await prisma.wishlist.create({
-        data: {
-          customerId: customer.id,
-        },
-      })
+      return NextResponse.json({ success: false, error: "Wishlist not found" }, { status: 404 })
     }
 
-    // Check if item already in wishlist
+    // Check if item exists and belongs to customer's wishlist
     const existingItem = await prisma.wishlistItem.findFirst({
       where: {
+        id: itemId,
         wishlistId: wishlist.id,
-        productId,
       },
     })
 
-    if (existingItem) {
-      return NextResponse.json({
-        success: false, 
-        error: "Item already in wishlist",
-        data: {
-          id: existingItem.id,
-          productId: existingItem.productId,
-          wishlistId: existingItem.wishlistId,
-          addedAt: existingItem.addedAt,
-        }
-      }, { status: 400 })
+    if (!existingItem) {
+      return NextResponse.json({ success: false, error: "Wishlist item not found" }, { status: 404 })
     }
 
-    // Add new item
-    const newItem = await prisma.wishlistItem.create({
-      data: {
-        wishlistId: wishlist.id,
-        productId,
-      },
-    })
-
-    // Get updated wishlist
-    const updatedWishlist = await prisma.wishlist.findUnique({
-      where: { id: wishlist.id },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
+    // Remove from wishlist
+    await prisma.wishlistItem.delete({
+      where: {
+        id: itemId,
       },
     })
 
     return NextResponse.json({
       success: true,
-      message: "Item added to wishlist",
-      data: {
-        id: updatedWishlist?.id,
-        items:
-          updatedWishlist?.items.map((item) => ({
-            id: item.id,
-            addedAt: item.addedAt,
-            product: item.product,
-          })) || [],
-      },
+      message: "Item removed from wishlist",
     })
   } catch (error) {
-    console.error("Add to wishlist error:", error)
-    return NextResponse.json({ success: false, error: "Failed to add item to wishlist" }, { status: 500 })
+    console.error("Remove from wishlist error:", error)
+    return NextResponse.json({ success: false, error: "Failed to remove from wishlist" }, { status: 500 })
   }
 }

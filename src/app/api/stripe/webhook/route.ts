@@ -5,8 +5,15 @@ import stripe from "@/lib/stripe/stripe"
 // Buffer to string helper (Needed for webhook signature verification)
 async function buffer(readable: ReadableStream) {
   const chunks = []
-  for await (const chunk of readable) {
-    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk)
+  const reader = readable.getReader()
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(typeof value === "string" ? Buffer.from(value) : value)
+    }
+  } finally {
+    reader.releaseLock()
   }
   return Buffer.concat(chunks)
 }

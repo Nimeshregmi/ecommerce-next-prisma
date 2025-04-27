@@ -11,6 +11,7 @@ import {
   LogOut,
   Settings,
   Menu,
+  Heart,
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { clearUser, setUser } from "@/redux/features/user-slice";
@@ -35,6 +36,7 @@ type Category = {
 
 export default function Header() {
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -74,6 +76,7 @@ export default function Header() {
 
           // Fetch cart after authentication is confirmed
           fetchCartCount();
+          fetchWishlistCount();
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -118,6 +121,20 @@ export default function Header() {
       }
     } catch (error) {
       console.error("Failed to fetch cart:", error);
+    }
+  };
+  
+  // Fetch wishlist count for authenticated users
+  const fetchWishlistCount = async () => {
+    try {
+      const response = await fetch("/api/wishlist");
+      const data = await response.json();
+
+      if (data.success) {
+        setWishlistCount(data.data.length || 0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch wishlist:", error);
     }
   };
 
@@ -195,6 +212,17 @@ export default function Header() {
                         )}
                       >
                         New Arrivals
+                      </Link>
+                      <Link
+                        href="/wishlist"
+                        className={cn(
+                          "px-4 py-2.5 text-sm rounded-md flex items-center font-medium",
+                          pathname === "/wishlist"
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-gray-50 text-gray-700 hover:text-primary"
+                        )}
+                      >
+                        Wishlist
                       </Link>
                       <Link
                         href="/about"
@@ -387,6 +415,11 @@ export default function Header() {
                         Order History
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="rounded-md">
+                      <Link href="/wishlist" className="cursor-pointer py-2">
+                        Wishlist
+                      </Link>
+                    </DropdownMenuItem>
 
                     {user.role === "admin" && (
                       <>
@@ -435,6 +468,21 @@ export default function Header() {
                 >
                   <Link href="/auth/sign-in">Sign in</Link>
                 </Button>
+              )}
+
+              {user.isAuthenticated && (
+                <Link
+                  href="/wishlist"
+                  className="relative p-2 rounded-full hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
+                  aria-label="Wishlist"
+                >
+                  <Heart className="h-[18px] w-[18px]" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600 text-xs font-medium text-white shadow-sm">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
               )}
 
               <Link
