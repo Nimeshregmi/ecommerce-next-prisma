@@ -106,7 +106,7 @@ export default async function OrderConfirmationPage({ params }: { params: { id: 
                 <CreditCard className="h-6 w-6 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Amount</p>
-                  <p className="font-medium">₹{orderTotal.toFixed(0)}</p>
+                  <p className="font-medium">${orderTotal.toFixed(0)}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4">
@@ -124,7 +124,7 @@ export default async function OrderConfirmationPage({ params }: { params: { id: 
                 <div className="rounded-md bg-muted/30 p-4">
                   <p className="font-medium">Shipping Type: {order.shippingInfo.shippingType}</p>
                   <p className="mt-1 text-muted-foreground">
-                    Shipping Cost: ₹{order.shippingInfo.shippingCost.toFixed(0)}
+                    Shipping Cost: ${order.shippingInfo.shippingCost.toFixed(0)}
                   </p>
                   <p className="text-muted-foreground">Shipping ID: {order.shippingInfo.shippingId}</p>
                   <p className="mt-1 text-muted-foreground">Region ID: {order.shippingInfo.shippingRegionId}</p>
@@ -141,7 +141,7 @@ export default async function OrderConfirmationPage({ params }: { params: { id: 
           variant="outline" 
           className="border-2 px-6 py-5 text-sm font-medium transition-all hover:bg-muted/30"
         >
-          <Link href="/account/orders">View Order History</Link>
+          <Link href="/order-history">View Order History</Link>
         </Button>
         <Button 
           asChild 

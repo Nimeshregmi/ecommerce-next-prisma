@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
-    const { productId, quantity = 1 } = await req.json()
+    const { productId, quantity = 1, selectedColor, selectedSize } = await req.json()
 
     if (!productId) {
       return NextResponse.json({ success: false, error: "Product ID is required" }, { status: 400 })
@@ -90,6 +90,14 @@ export async function POST(req: NextRequest) {
 
     if (!product) {
       return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 })
+    }
+    
+    // Check product stock
+    if (product.stockQuantity < quantity) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `Not enough stock. Only ${product.stockQuantity} items available.` 
+      }, { status: 400 })
     }
 
     // Get customer ID from user ID
@@ -118,20 +126,32 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Check if item already in cart
+    // Check if item with same product, color and size already in cart
     const existingItem = await prisma.shoppingCartItem.findFirst({
       where: {
         cartId: cart.id,
         productId,
+        selectedColor: selectedColor || null,
+        selectedSize: selectedSize || null,
       },
     })
 
     if (existingItem) {
+      // Check if updated quantity exceeds stock
+      const newQuantity = existingItem.quantity + quantity;
+      
+      if (newQuantity > product.stockQuantity) {
+        return NextResponse.json({ 
+          success: false, 
+          error: `Cannot add ${quantity} more items. Only ${product.stockQuantity - existingItem.quantity} more available.` 
+        }, { status: 400 })
+      }
+      
       // Update quantity
       await prisma.shoppingCartItem.update({
         where: { id: existingItem.id },
         data: {
-          quantity: existingItem.quantity + quantity,
+          quantity: newQuantity,
         },
       })
     } else {
@@ -141,6 +161,8 @@ export async function POST(req: NextRequest) {
           cartId: cart.id,
           productId,
           quantity,
+          selectedColor: selectedColor || null,
+          selectedSize: selectedSize || null,
           dateAdded: new Date(),
         },
       })

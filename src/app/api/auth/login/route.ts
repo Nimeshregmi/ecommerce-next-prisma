@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { createToken, setAuthCookie } from "@/lib/auth-utils"
+import { createNotification } from "@/lib/utils"
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,37 +32,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid email or password" }, { status: 401 })
     }
 
-    // Update login status
-    await prisma.user.update({
-      where: {
-        id: customer.user.id,
-      },
-      data: {
-        loginStatus: "active",
-      },
-    })
+    const { user } = customer
 
-    // Create JWT token
-    const token = await createToken({
-      id: customer.user.id,
-      email: customer.email,
-      role: customer.user.role as "user" | "admin",
-      name: customer.customerName,
-    })
+    if (user) {
+      // Update login status
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { loginStatus: "active" },
+      })
 
-    // Set auth cookie
-    await setAuthCookie(token)
+      // Create a login notification
+      await createNotification(
+        user.id,
+        "Login Successful",
+        "You have successfully logged in.",
+        "auth"
+      )
 
-    return NextResponse.json({
-      success: true,
-      message: "Login successful",
-      data: {
-        id: customer.user.id,
-        email: customer.email,
-        name: customer.customerName,
-        role: customer.user.role,
-      },
-    })
+      return NextResponse.json({
+        success: true,
+        message: "Login successful",
+      })
+    }
   } catch (error) {
     console.error("Login error:", error)
     return NextResponse.json({ success: false, error: "Authentication failed" }, { status: 500 })

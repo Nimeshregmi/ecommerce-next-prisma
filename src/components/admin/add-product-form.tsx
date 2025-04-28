@@ -6,9 +6,13 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { v4 as uuidv4 } from "uuid"
 import { useToast } from "@/components/ui/use-toast"
+import { Textarea } from "@/components/ui/textarea"
 import Image from "next/image"
+import { Badge } from "@/components/ui/badge"
+import { X } from "lucide-react"
 
 type Product = {
   id: string
@@ -18,6 +22,10 @@ type Product = {
   productStatus: string
   categoryId: string
   image?: string | null
+  color: string[]
+  size: string[]
+  description?: string
+  stockQuantity?: number
 }
 
 type Category = {
@@ -25,6 +33,29 @@ type Category = {
   categoryId: string
   categoryName: string
 }
+
+// Available colors and sizes for selection
+const AVAILABLE_COLORS = [
+  { name: "Red", value: "red" },
+  { name: "Blue", value: "blue" },
+  { name: "Green", value: "green" },
+  { name: "Black", value: "black" },
+  { name: "White", value: "white" },
+  { name: "Yellow", value: "yellow" },
+  { name: "Purple", value: "purple" },
+  { name: "Pink", value: "pink" },
+  { name: "Orange", value: "orange" },
+  { name: "Gray", value: "gray" }
+]
+
+const AVAILABLE_SIZES = [
+  { name: "XS", value: "xs" },
+  { name: "S", value: "s" },
+  { name: "M", value: "m" },
+  { name: "L", value: "l" },
+  { name: "XL", value: "xl" },
+  { name: "XXL", value: "xxl" }
+]
 
 export default function AddProductForm({
   onClose,
@@ -43,25 +74,53 @@ export default function AddProductForm({
     productStatus: string
     categoryId: string
     image: string
+    color: string[]
+    size: string[]
+    description: string
+    stockQuantity: string
   }>({
     productName: editingProduct?.productName || "",
-    productPrice: editingProduct?.productPrice.toString() || "",
+    productPrice: editingProduct?.productPrice?.toString() || "",
     productStatus: editingProduct?.productStatus || "active",
     categoryId: editingProduct?.categoryId || "",
     image: editingProduct?.image || "",
+    color: editingProduct?.color || [],
+    size: editingProduct?.size || [],
+    description: editingProduct?.description || "",
+    stockQuantity: editingProduct?.stockQuantity?.toString() || "0",
   })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const { toast } = useToast()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const toggleColor = (color: string) => {
+    setFormData((prev) => {
+      if (prev.color.includes(color)) {
+        return { ...prev, color: prev.color.filter((c) => c !== color) }
+      } else {
+        return { ...prev, color: [...prev.color, color] }
+      }
+    })
+  }
+
+  const toggleSize = (size: string) => {
+    setFormData((prev) => {
+      if (prev.size.includes(size)) {
+        return { ...prev, size: prev.size.filter((s) => s !== size) }
+      } else {
+        return { ...prev, size: [...prev.size, size] }
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,6 +141,10 @@ export default function AddProductForm({
         productStatus: formData.productStatus,
         categoryId: formData.categoryId,
         image: formData.image || null,
+        color: formData.color,
+        size: formData.size,
+        description: formData.description,
+        stockQuantity: Number.parseInt(formData.stockQuantity, 10)
       }
 
       let response
@@ -207,6 +270,120 @@ export default function AddProductForm({
               ))}
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Stock Quantity</label>
+        <Input
+          name="stockQuantity"
+          type="number"
+          value={formData.stockQuantity}
+          onChange={handleChange}
+          disabled={isLoading}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Product Description</label>
+        <Textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          disabled={isLoading}
+          placeholder="Enter a detailed description of the product"
+          className="min-h-[100px]"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Available Colors</label>
+          <div className="mt-2">
+            <div className="flex flex-wrap gap-2">
+              {formData.color.length > 0 ? (
+                formData.color.map((color) => (
+                  <Badge key={color} className="flex items-center gap-1 mr-2 mb-2 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                    {color}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 text-blue-700 hover:text-blue-900 hover:bg-transparent"
+                      onClick={() => toggleColor(color)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-sm text-gray-500">No colors selected</span>
+              )}
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {AVAILABLE_COLORS.map((color) => (
+              <div key={color.value} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`color-${color.value}`} 
+                  checked={formData.color.includes(color.value)}
+                  onCheckedChange={() => toggleColor(color.value)}
+                  disabled={isLoading}
+                />
+                <label 
+                  htmlFor={`color-${color.value}`}
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {color.name}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Available Sizes</label>
+          <div className="mt-2">
+            <div className="flex flex-wrap gap-2">
+              {formData.size.length > 0 ? (
+                formData.size.map((size) => (
+                  <Badge key={size} className="flex items-center gap-1 mr-2 mb-2 bg-purple-50 text-purple-700 hover:bg-purple-100">
+                    {size.toUpperCase()}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 text-purple-700 hover:text-purple-900 hover:bg-transparent"
+                      onClick={() => toggleSize(size)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-sm text-gray-500">No sizes selected</span>
+              )}
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {AVAILABLE_SIZES.map((size) => (
+              <div key={size.value} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`size-${size.value}`} 
+                  checked={formData.size.includes(size.value)}
+                  onCheckedChange={() => toggleSize(size.value)}
+                  disabled={isLoading}
+                />
+                <label 
+                  htmlFor={`size-${size.value}`}
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {size.name}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

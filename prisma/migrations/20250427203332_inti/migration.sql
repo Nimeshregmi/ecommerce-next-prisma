@@ -51,6 +51,8 @@ CREATE TABLE "shopping_cart_items" (
     "productId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "dateAdded" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "selectedColor" TEXT,
+    "selectedSize" TEXT,
 
     CONSTRAINT "shopping_cart_items_pkey" PRIMARY KEY ("id")
 );
@@ -64,6 +66,7 @@ CREATE TABLE "orders" (
     "customerName" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'pending',
+    "paymentMethod" TEXT,
     "shippingId" TEXT,
 
     CONSTRAINT "orders_pkey" PRIMARY KEY ("id")
@@ -76,6 +79,8 @@ CREATE TABLE "order_details" (
     "productId" TEXT NOT NULL,
     "productName" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
+    "color" TEXT,
+    "size" TEXT,
     "unitCost" DOUBLE PRECISION NOT NULL,
     "subtotal" DOUBLE PRECISION NOT NULL,
 
@@ -89,6 +94,10 @@ CREATE TABLE "shipping_info" (
     "shippingType" TEXT NOT NULL,
     "shippingCost" DOUBLE PRECISION NOT NULL,
     "shippingRegionId" INTEGER NOT NULL,
+    "city" TEXT,
+    "state" TEXT,
+    "country" TEXT,
+    "postalCode" TEXT,
 
     CONSTRAINT "shipping_info_pkey" PRIMARY KEY ("id")
 );
@@ -100,7 +109,12 @@ CREATE TABLE "products" (
     "productName" TEXT NOT NULL,
     "productPrice" DOUBLE PRECISION NOT NULL,
     "productStatus" TEXT NOT NULL DEFAULT 'active',
+    "image" TEXT,
     "categoryId" TEXT NOT NULL,
+    "color" TEXT[],
+    "size" TEXT[],
+    "description" TEXT,
+    "stockQuantity" INTEGER NOT NULL,
 
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
@@ -110,20 +124,29 @@ CREATE TABLE "product_categories" (
     "id" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "categoryName" TEXT NOT NULL,
-    "websiteId" TEXT NOT NULL,
+    "image" TEXT,
 
     CONSTRAINT "product_categories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "online_shopping_websites" (
+CREATE TABLE "wishlists" (
     "id" TEXT NOT NULL,
-    "websiteName" TEXT NOT NULL,
-    "websiteUrl" TEXT NOT NULL,
-    "contact" TEXT NOT NULL,
-    "adminId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "online_shopping_websites_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "wishlists_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "wishlist_items" (
+    "id" TEXT NOT NULL,
+    "wishlistId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "wishlist_items_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -162,7 +185,7 @@ CREATE UNIQUE INDEX "products_productId_key" ON "products"("productId");
 CREATE UNIQUE INDEX "product_categories_categoryId_key" ON "product_categories"("categoryId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "online_shopping_websites_adminId_key" ON "online_shopping_websites"("adminId");
+CREATE UNIQUE INDEX "wishlist_items_wishlistId_productId_key" ON "wishlist_items"("wishlistId", "productId");
 
 -- CreateIndex
 CREATE INDEX "_OrderToProduct_B_index" ON "_OrderToProduct"("B");
@@ -198,10 +221,13 @@ ALTER TABLE "order_details" ADD CONSTRAINT "order_details_productId_fkey" FOREIG
 ALTER TABLE "products" ADD CONSTRAINT "products_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "product_categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "product_categories" ADD CONSTRAINT "product_categories_websiteId_fkey" FOREIGN KEY ("websiteId") REFERENCES "online_shopping_websites"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "wishlists" ADD CONSTRAINT "wishlists_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "online_shopping_websites" ADD CONSTRAINT "online_shopping_websites_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "administrators"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_wishlistId_fkey" FOREIGN KEY ("wishlistId") REFERENCES "wishlists"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_OrderToProduct" ADD CONSTRAINT "_OrderToProduct_A_fkey" FOREIGN KEY ("A") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;

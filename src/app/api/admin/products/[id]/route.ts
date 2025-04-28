@@ -30,7 +30,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         productPrice: Number.parseFloat(data.productPrice),
         productStatus: data.productStatus,
         categoryId: data.categoryId,
-        image: data.imageUrl,
+        image: data.image, // Fixed from data.imageUrl to data.image for consistency
+        stockQuantity: data.stockQuantity || 0,
+        color: data.color || [],
+        size: data.size || [],
+        description: data.description || ""
       },
       include: {
         category: true,

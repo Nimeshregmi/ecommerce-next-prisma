@@ -78,18 +78,18 @@ export default async function PaymentSuccessPage({
                     <div className="ml-4">
                       <p className="text-gray-900">{item.productName}</p>
                       <p className="text-sm text-gray-500">
-                        Qty: {item.quantity} × ₹{item.unitCost}
+                        Qty: {item.quantity} × ${item.unitCost}
                       </p>
                     </div>
                   </div>
-                  <p className="font-medium text-gray-900">₹{item.subtotal}</p>
+                  <p className="font-medium text-gray-900">${item.subtotal}</p>
                 </div>
               ))}
 
               <div className="border-t pt-4">
                 <div className="flex justify-between font-medium">
                   <p>Total</p>
-                  <p>₹{total}</p>
+                  <p>${total}</p>
                 </div>
               </div>
             </div>

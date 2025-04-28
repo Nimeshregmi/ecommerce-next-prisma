@@ -66,23 +66,20 @@ export async function POST(req: NextRequest) {
 
     // Start a transaction
     const result = await prisma.$transaction(async (tx) => {
-      // First, find or create a shipping info record
-      let shippingInfoRecord = await tx.shippingInfo.findFirst({
-        where: {
-          shippingId: "standard",
+      // Create or update shipping info record
+      let shippingInfoRecord = await tx.shippingInfo.create({
+        data: {
+          shippingId: uuidv4().substring(0, 8).toUpperCase(),
+          shippingType: "Standard",
+          shippingCost: 5.99,
+          shippingRegionId: 1,
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          country: shippingInfo.country,
+          postalCode: shippingInfo.postalCode,
+          // addressLine1: shippingInfo.address,
         },
       })
-
-      if (!shippingInfoRecord) {
-        shippingInfoRecord = await tx.shippingInfo.create({
-          data: {
-            shippingId: "standard",
-            shippingType: "Standard",
-            shippingCost: 0,
-            shippingRegionId: 1,
-          },
-        })
-      }
 
       // Create the order
       const order = await tx.order.create({
@@ -91,18 +88,18 @@ export async function POST(req: NextRequest) {
           customerId: customer.id,
           customerName: customer.customerName,
           status: "pending",
-          paymentMethod: "cod",
+          paymentMethod: shippingInfo.paymentMethod || "cod",
           shippingId: shippingInfoRecord.id,
         },
       })
 
-      // Get products to verify prices
+      // Get products to verify prices and check stock
       const productIds = items.map((item: any) => item.productId)
       const products = await tx.product.findMany({
         where: { id: { in: productIds } },
       })
 
-      // Create order details
+      // Create order details and update inventory
       for (const item of items) {
         const product = products.find((p) => p.id === item.productId)
 
@@ -110,8 +107,14 @@ export async function POST(req: NextRequest) {
           throw new Error(`Product not found: ${item.productId}`)
         }
 
+        // Check if enough stock is available
+        if (product.stockQuantity < item.quantity) {
+          throw new Error(`Not enough stock for product: ${product.productName}. Available: ${product.stockQuantity}`)
+        }
+
         const subtotal = product.productPrice * item.quantity
 
+        // Create order detail with color and size
         await tx.orderDetail.create({
           data: {
             orderId: order.id,
@@ -120,9 +123,34 @@ export async function POST(req: NextRequest) {
             quantity: item.quantity,
             unitCost: product.productPrice,
             subtotal: subtotal,
+            color: item.selectedColor,
+            size: item.selectedSize,
+          },
+        })
+
+        // Update product inventory
+        await tx.product.update({
+          where: { id: product.id },
+          data: {
+            stockQuantity: {
+              decrement: item.quantity
+            },
+            productStatus: product.stockQuantity - item.quantity <= 0 ? "outofstock" : "active"
           },
         })
       }
+
+      // Create notification for order placement
+      await tx.notification.create({
+        data: {
+          userId: user.id,
+          title: "Order Placed Successfully",
+          message: `Your order #${order.orderId} has been placed and is waiting to be processed.`,
+          type: "order",
+          isRead: false,
+          referenceId: order.id
+        }
+      })
 
       // Clear user's cart
       const cart = await tx.shoppingCart.findFirst({
@@ -158,6 +186,9 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error("Create order error:", error)
-    return NextResponse.json({ success: false, error: "Failed to create order" }, { status: 500 })
+    return NextResponse.json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to create order"
+    }, { status: 500 })
   }
 }

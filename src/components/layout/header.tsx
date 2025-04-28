@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationIndicator from "@/components/notifications/notification-indicator";
 
 type Category = {
   id: string;
@@ -248,6 +249,19 @@ export default function Header() {
                           Order History
                         </Link>
                       )}
+                      {user.isAuthenticated && (
+                        <Link
+                          href="/notifications"
+                          className={cn(
+                            "px-4 py-2.5 text-sm rounded-md flex items-center font-medium",
+                            pathname === "/notifications"
+                              ? "bg-primary/10 text-primary"
+                              : "hover:bg-gray-50 text-gray-700 hover:text-primary"
+                          )}
+                        >
+                          Notifications
+                        </Link>
+                      )}
                     </nav>
                     {categories.length > 0 && (
                       <div className="py-3 px-3 border-t mt-2">
@@ -378,116 +392,119 @@ export default function Header() {
               {isLoading ? (
                 <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200"></div>
               ) : user.isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full w-9 h-9 p-0 hover:bg-primary/10"
-                    >
-                      <div className="h-full w-full rounded-full bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center shadow-sm">
-                        <span className="text-xs font-medium">
-                          {user.customerName?.charAt(0).toUpperCase() || "U"}
-                        </span>
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full w-9 h-9 p-0 hover:bg-primary/10"
+                      >
+                        <div className="h-full w-full rounded-full bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center shadow-sm">
+                          <span className="text-xs font-medium">
+                            {user.customerName?.charAt(0).toUpperCase() || "U"}
+                          </span>
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 mt-1 p-1.5 rounded-xl border-none shadow-lg">
+                      <div className="px-3 py-2.5 text-sm font-medium rounded-md bg-gray-50">
+                        {user.customerName}
+                        {user.role === "admin" && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 text-xs bg-primary/10 text-primary font-semibold"
+                          >
+                            Admin
+                          </Badge>
+                        )}
                       </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 mt-1 p-1.5 rounded-xl border-none shadow-lg">
-                    <div className="px-3 py-2.5 text-sm font-medium rounded-md bg-gray-50">
-                      {user.customerName}
+                      <DropdownMenuSeparator className="my-1" />
+                      <DropdownMenuItem asChild className="rounded-md">
+                        <Link href="/account" className="cursor-pointer py-2">
+                          My Account
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-md">
+                        <Link href="/order-history" className="cursor-pointer py-2">
+                          Order History
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-md">
+                        <Link href="/wishlist" className="cursor-pointer py-2">
+                          Wishlist
+                        </Link>
+                      </DropdownMenuItem>
+
                       {user.role === "admin" && (
-                        <Badge
-                          variant="secondary"
-                          className="ml-2 text-xs bg-primary/10 text-primary font-semibold"
-                        >
-                          Admin
-                        </Badge>
+                        <>
+                          <DropdownMenuSeparator className="my-1" />
+                          <DropdownMenuItem asChild className="rounded-md">
+                            <Link
+                              href="/admin"
+                              className="cursor-pointer flex items-center py-2"
+                            >
+                              <Settings className="mr-2 h-4 w-4" />
+                              Admin Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className="rounded-md">
+                            <Link
+                              href="/admin/products"
+                              className="cursor-pointer py-2"
+                            >
+                              Manage Products
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className="rounded-md">
+                            <Link href="/admin/orders" className="cursor-pointer py-2">
+                              Manage Orders
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
                       )}
-                    </div>
-                    <DropdownMenuSeparator className="my-1" />
-                    <DropdownMenuItem asChild className="rounded-md">
-                      <Link href="/account" className="cursor-pointer py-2">
-                        My Account
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-md">
-                      <Link href="/order-history" className="cursor-pointer py-2">
-                        Order History
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-md">
-                      <Link href="/wishlist" className="cursor-pointer py-2">
-                        Wishlist
-                      </Link>
-                    </DropdownMenuItem>
 
-                    {user.role === "admin" && (
-                      <>
-                        <DropdownMenuSeparator className="my-1" />
-                        <DropdownMenuItem asChild className="rounded-md">
-                          <Link
-                            href="/admin"
-                            className="cursor-pointer flex items-center py-2"
-                          >
-                            <Settings className="mr-2 h-4 w-4" />
-                            Admin Dashboard
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="rounded-md">
-                          <Link
-                            href="/admin/products"
-                            className="cursor-pointer py-2"
-                          >
-                            Manage Products
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="rounded-md">
-                          <Link href="/admin/orders" className="cursor-pointer py-2">
-                            Manage Orders
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
+                      <DropdownMenuSeparator className="my-1" />
+                      <DropdownMenuItem
+                        onClick={handleSignOut}
+                        className="text-red-600 cursor-pointer rounded-md py-2"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Notifications indicator */}
+                  <NotificationIndicator />
+
+                  <Link
+                    href="/wishlist"
+                    className="relative p-2 cursor-pointer rounded-full hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
+                    aria-label="Wishlist"
+                  >
+                    <Heart className="h-[18px] w-[18px]" />
+                    {wishlistCount > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600 text-xs font-medium text-white shadow-sm">
+                        {wishlistCount}
+                      </span>
                     )}
-
-                    <DropdownMenuSeparator className="my-1" />
-                    <DropdownMenuItem
-                      onClick={handleSignOut}
-                      className="text-red-600 cursor-pointer rounded-md py-2"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </Link>
+                </>
               ) : (
                 <Button
                   size="sm"
                   variant="outline"
                   asChild
-                  className="h-9 text-xs px-4 font-medium border-2 rounded-full hover:bg-primary/5 hover:border-primary/70 hover:text-primary transition-all"
+                  className="h-9 text-xs px-4 cursor-pointer font-medium border-2 rounded-full hover:bg-primary/5 hover:border-primary/70 hover:text-primary transition-all"
                 >
                   <Link href="/auth/sign-in">Sign in</Link>
                 </Button>
               )}
 
-              {user.isAuthenticated && (
-                <Link
-                  href="/wishlist"
-                  className="relative p-2 rounded-full hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
-                  aria-label="Wishlist"
-                >
-                  <Heart className="h-[18px] w-[18px]" />
-                  {wishlistCount > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600 text-xs font-medium text-white shadow-sm">
-                      {wishlistCount}
-                    </span>
-                  )}
-                </Link>
-              )}
-
               <Link
                 href="/cart"
-                className="relative p-2 rounded-full hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
+                className="relative p-2 cursor-pointer rounded-full hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
                 aria-label="Cart"
               >
                 <ShoppingCart className="h-[18px] w-[18px]" />

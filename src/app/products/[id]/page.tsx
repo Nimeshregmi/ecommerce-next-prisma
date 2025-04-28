@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Shield,
 } from "lucide-react";
-import AddToCartButton from "@/components/products/add-to-cart-button";
 import { getProductById } from "@/lib/data/products";
 import { formatCurrency } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import ToggleWishlistButton from "@/components/wishlist/toggle-wishlist-button";
+import ProductOptionsSelector from "@/components/products/product-options-selector";
+import AddToCartButton from "@/components/products/add-to-cart-button";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const product = await getProductById(params.id);
@@ -158,45 +159,14 @@ export default async function ProductPage({
                 </div>
               </div>
 
-              {/* Color selection */}
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-900 mb-3">
-                  Choose Color
-                </h3>
-                <div className="flex gap-3">
-                  <button className="h-10 w-10 rounded-full border-2 border-white cursor-pointer outline-2 outline-primary shadow-sm bg-black"></button>
-                  <button className="h-10 w-10 rounded-full border-2 border-white cursor-pointer shadow-sm bg-[#5D4037]"></button>
-                  <button className="h-10 w-10 rounded-full border-2 border-white cursor-pointer shadow-sm bg-[#546E7A]"></button>
-                </div>
-              </div>
+              {/* Color and Size Selection */}
+              <ProductOptionsSelector product={product} />
 
-              {/* Size selection */}
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    Select Size
-                  </h3>
-                  <Link
-                    href="#"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Size Guide
-                  </Link>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
-                    <button
-                      key={size}
-                      className="flex h-11 min-w-[2.75rem] cursor-pointer items-center justify-center rounded-md border border-gray-200 px-3 text-sm font-medium transition-colors hover:bg-gray-50"
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Remaining Quantity */}
+              
 
-              {/* Add to cart */}
-              <div className="flex flex-col space-y-3">
+              {/* Add to Cart Button */}
+              <div className="mt-6">
                 <AddToCartButton product={product} />
               </div>
 

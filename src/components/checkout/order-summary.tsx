@@ -32,7 +32,7 @@ export default function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
             </div>
 
             <div className="text-right">
-              <p className="text-sm font-medium">RS.{(item.product.productPrice * item.quantity).toFixed(0)}</p>
+              <p className="text-sm font-medium">$ {(item.product.productPrice * item.quantity).toFixed(0)}</p>
             </div>
           </div>
         ))}
@@ -43,19 +43,19 @@ export default function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
       <div className="space-y-2">
         <div className="flex justify-between">
           <span className="text-gray-600">Subtotal</span>
-          <span>RS.{subtotal.toFixed(0)}</span>
+          <span>$ {subtotal.toFixed(0)}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-gray-600">Shipping</span>
-          <span>{shipping === 0 ? "Free" : `RS.${shipping.toFixed(0)}`}</span>
+          <span>{shipping === 0 ? "Free" : `$.${shipping.toFixed(0)}`}</span>
         </div>
 
         <Separator />
 
         <div className="flex justify-between font-medium">
           <span>Total</span>
-          <span>RS.{total.toFixed(0)}</span>
+          <span> ${total.toFixed(0)}</span>
         </div>
       </div>
     </div>

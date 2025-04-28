@@ -51,7 +51,7 @@ export default function Footer() {
             <h3 className="mb-4 text-sm font-semibold">Get Help</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/help-center" className="text-gray-600 hover:text-gray-900">
+                <Link href="/help" className="text-gray-600 hover:text-gray-900">
                   Help Center
                 </Link>
               </li>

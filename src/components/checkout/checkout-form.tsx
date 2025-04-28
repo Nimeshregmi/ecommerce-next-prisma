@@ -65,10 +65,11 @@ export default function CheckoutForm({ cartItems }: { cartItems: any[] }) {
           items: cartItems.map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,
+            selectedColor: item.selectedColor,
+            selectedSize: item.selectedSize,
           })),
         }),
       })
-
       const data = await response.json()
 
       if (data.success) {

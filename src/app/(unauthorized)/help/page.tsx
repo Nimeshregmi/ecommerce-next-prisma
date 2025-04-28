@@ -38,7 +38,7 @@ export default function HelpCenterPage() {
   return (
     <div className="bg-gradient-to-b from-white to-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-700 py-16 md:py-24">
+      <div className=" bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">
             How can we help you today?
@@ -53,7 +53,7 @@ export default function HelpCenterPage() {
               placeholder="Search for answers..."
               className="pl-10 pr-4 py-6 rounded-lg w-full text-base bg-white"
             />
-            <Button className="absolute right-1.5 top-1.5 bg-gradient-to-r from-indigo-500 to-blue-500">
+            <Button className="absolute right-1.5 top-1.5 bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700">
               Search
             </Button>
           </div>
@@ -69,7 +69,7 @@ export default function HelpCenterPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="bg-white hover:shadow-md transition-shadow duration-300">
             <CardHeader className="pb-3">
-              <Truck className="h-6 w-6 text-indigo-500 mb-2" />
+              <Truck className="h-6 w-6 text-black mb-2" />
               <CardTitle>Shipping & Delivery</CardTitle>
               <CardDescription>
                 Get information about shipping options, delivery times, and tracking orders
@@ -257,7 +257,7 @@ export default function HelpCenterPage() {
             <Card className="bg-white hover:shadow-md transition-shadow duration-300">
               <CardHeader>
                 <div className="mx-auto bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center">
-                  <Mail className="h-6 w-6 text-indigo-600" />
+                  <Mail className="h-6 w-6 text-black" />
                 </div>
                 <CardTitle className="mt-4">Email Us</CardTitle>
               </CardHeader>
@@ -266,7 +266,7 @@ export default function HelpCenterPage() {
                 <Button 
                   asChild 
                   variant="outline" 
-                  className="border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50"
+                  className="border-2 border-black text-black hover:bg-black/2"
                 >
                   <a href="mailto:support@fashionfuel.com">
                     support@fashionfuel.com
@@ -278,7 +278,7 @@ export default function HelpCenterPage() {
             <Card className="bg-white hover:shadow-md transition-shadow duration-300">
               <CardHeader>
                 <div className="mx-auto bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center">
-                  <Phone className="h-6 w-6 text-indigo-600" />
+                  <Phone className="h-6 w-6 text-black" />
                 </div>
                 <CardTitle className="mt-4">Call Us</CardTitle>
               </CardHeader>
@@ -287,7 +287,7 @@ export default function HelpCenterPage() {
                 <Button 
                   asChild 
                   variant="outline" 
-                  className="border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50"
+                  className="border-2 border-black text-black hover:bg-black/2"
                 >
                   <a href="tel:+1800555123">
                     +1 (800) 555-123
@@ -299,13 +299,13 @@ export default function HelpCenterPage() {
             <Card className="bg-white hover:shadow-md transition-shadow duration-300">
               <CardHeader>
                 <div className="mx-auto bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center">
-                  <MessageSquare className="h-6 w-6 text-indigo-600" />
+                  <MessageSquare className="h-6 w-6 text-black" />
                 </div>
                 <CardTitle className="mt-4">Live Chat</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">Instant support</p>
-                <Button className="bg-gradient-to-r from-indigo-600 to-blue-500">
+                <Button className="bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700">
                   Start Chat
                 </Button>
               </CardContent>

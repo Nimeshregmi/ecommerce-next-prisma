@@ -28,3 +28,42 @@ export function getInitials(name: string): string {
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
 }
+
+import { prisma } from "@/lib/prisma";
+
+// Create a notification
+export async function createNotification(userId: string, title: string, message: string, type: string, referenceId?: string) {
+  try {
+    await prisma.notification.create({
+      data: {
+        userId,
+        title,
+        message,
+        type,
+        referenceId,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create notification:", error);
+  }
+}
+
+// Fetch notifications for a user
+export async function getNotifications(userId: string, fromDate: Date) {
+  try {
+    return await prisma.notification.findMany({
+      where: {
+        userId,
+        createdAt: {
+          gte: fromDate,
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+    return [];
+  }
+}
