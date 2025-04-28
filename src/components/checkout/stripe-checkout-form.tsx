@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -72,48 +70,13 @@ export default function StripeCheckoutForm({ cartItems }: { cartItems: CartItem[
 
     setIsProcessing(true)
 
-    // In a real app, you would use Stripe.js to handle payment securely
-    // This is just a demo that simulates a payment process
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Create order
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: cartItems.map((item) => ({
-            productId: item.product.id,
-            quantity: item.quantity,
-          })),
-          shippingInfo: {
-            // This would normally come from a previous step
-            // For demo purposes, we're using placeholder values
-            address: "123 Main St",
-            city: "New York",
-            state: "NY",
-            country: "USA",
-            postalCode: "10001",
-            phone: "555-123-4567",
-          },
-        }),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        toast({
-          title: "Payment successful",
-          description: "Your order has been placed successfully",
-        })
-        router.push(`/order-confirmation/${data.data.id}`)
-      } else {
-        throw new Error(data.error || "Failed to create order")
-      }
+      // Create a mock order ID for demonstration purposes
+      // In a real implementation, this would come from the Stripe API
+      const mockOrderId = `order_${Math.random().toString(36).substring(2, 15)}`
+      
+      // Redirect to success page with the mock order ID
+      router.push(`/checkout/success?session_id=${mockOrderId}`)
     } catch (error) {
       console.error("Payment error:", error)
       toast({

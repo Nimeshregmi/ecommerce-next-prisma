@@ -86,7 +86,7 @@ export default function CartSummary() {
         <div className="space-y-4 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">Subtotal ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})</span>
-            <span className="font-medium">₹{subtotal.toLocaleString()}</span>
+            <span className="font-medium">${subtotal.toLocaleString()}</span>
           </div>
 
           <div className="flex justify-between">
@@ -94,20 +94,20 @@ export default function CartSummary() {
             {shippingCost === 0 ? (
               <span className="text-green-600 font-medium">Free</span>
             ) : (
-              <span className="font-medium">₹{shippingCost.toLocaleString()}</span>
+              <span className="font-medium">${shippingCost.toLocaleString()}</span>
             )}
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-600">Estimated Tax (5% GST)</span>
-            <span className="font-medium">₹{tax.toLocaleString()}</span>
+            <span className="font-medium">${tax.toLocaleString()}</span>
           </div>
 
           <Separator className="my-2" />
 
           <div className="flex justify-between font-medium text-base">
             <span>Total</span>
-            <span className="text-lg">₹{total.toLocaleString()}</span>
+            <span className="text-lg">${total.toLocaleString()}</span>
           </div>
 
           <Button 

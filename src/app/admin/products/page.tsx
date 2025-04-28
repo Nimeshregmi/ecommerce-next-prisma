@@ -23,7 +23,7 @@ export default async function AdminProductsPage() {
   }
 
   // Fetch products with categories
-  const products = await prisma.product.findMany({
+  const prismaProducts = await prisma.product.findMany({
     include: {
       category: true,
     },
@@ -31,6 +31,12 @@ export default async function AdminProductsPage() {
       productName: "asc",
     },
   })
+
+  // Transform products to convert null to undefined
+  const products = prismaProducts.map(product => ({
+    ...product,
+    description: product.description ?? undefined,
+  }))
 
   // Fetch categories for the product form
   const categories = await prisma.productCategory.findMany({

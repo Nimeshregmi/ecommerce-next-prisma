@@ -32,6 +32,7 @@ model Customer {
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders         Order[]
   shoppingCarts  ShoppingCart[]
+  wishlists      Wishlist[]
 
   @@map("customers")
 }
@@ -51,6 +52,8 @@ model ShoppingCart {
   customerId String
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt
+  selectedColor String?
+  selectedSize  String?
   cartItems  ShoppingCartItem[]
   customer   Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
@@ -58,13 +61,15 @@ model ShoppingCart {
 }
 
 model ShoppingCartItem {
-  id        String       @id @default(uuid())
-  cartId    String
-  productId String
-  quantity  Int
-  dateAdded DateTime     @default(now())
-  cart      ShoppingCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id            String       @id @default(uuid())
+  cartId        String
+  productId     String
+  quantity      Int
+  dateAdded     DateTime     @default(now())
+  selectedColor String?
+  selectedSize  String?
+  cart          ShoppingCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product       Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("shopping_cart_items")
 }
@@ -77,7 +82,7 @@ model Order {
   customerName String
   customerId   String
   status       String        @default("pending")
-  paymentMethod String?      // Added payment method field
+  paymentMethod String?      
   shippingId   String?
   orderDetails OrderDetail[]
   customer     Customer      @relation(fields: [customerId], references: [id])
@@ -93,6 +98,8 @@ model OrderDetail {
   productId   String
   productName String
   quantity    Int
+  color       String?
+  size        String?
   unitCost    Float
   subtotal    Float
   order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -107,9 +114,28 @@ model ShippingInfo {
   shippingType     String
   shippingCost     Float
   shippingRegionId Int
+  city            String?
+  state           String?
+  country         String?
+  postalCode      String?
+  addressLine1    String?
+  addressLine2    String?
   orders           Order[]
 
   @@map("shipping_info")
+}
+
+model Notification {
+  id           String   @id @default(uuid())
+  userId       String
+  title        String
+  message      String
+  type         String   // order, auth, system, etc.
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  referenceId  String?
+  
+  @@map("notifications")
 }
 
 model Product {
@@ -120,10 +146,15 @@ model Product {
   productStatus String             @default("active")
   image         String?
   categoryId    String
+  color         String[]
+  size          String[]
+  description   String?
+  stockQuantity Int
   orderDetails  OrderDetail[]
   category      ProductCategory    @relation(fields: [categoryId], references: [id])
   cartItems     ShoppingCartItem[]
   orders        Order[]            @relation("OrderToProduct")
+  wishlistItems WishlistItem[]
 
   @@map("products")
 }
@@ -136,4 +167,27 @@ model ProductCategory {
   products     Product[]
 
   @@map("product_categories")
+}
+
+model Wishlist {
+  id         String         @id @default(uuid())
+  customerId String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items      WishlistItem[]
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String
+  productId  String
+  addedAt    DateTime @default(now())
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@map("wishlist_items")
 }

@@ -89,8 +89,11 @@ export async function POST(req: NextRequest) {
         productPrice: Number.parseFloat(data.productPrice),
         productStatus: data.productStatus || "active",
         categoryId: data.categoryId,
-        // description: data.description || "",
+        description: data.description || "",
         image: data.image || null,
+        stockQuantity: data.stockQuantity || 0,
+        color: data.color || [],
+        size: data.size || []
       },
       include: {
         category: true,

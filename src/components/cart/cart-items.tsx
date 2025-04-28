@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge"
 type CartItem = {
   id: string
   quantity: number
+  selectedColor?: string | null
+  selectedSize?: string | null
   product: {
     id: string
     productName: string
@@ -198,12 +200,32 @@ export default function CartItems() {
                 >
                   {item.product.productName}
                 </Link>
-                <p className="font-medium">₹{item.product.productPrice.toLocaleString()}</p>
+                <p className="font-medium">${item.product.productPrice.toLocaleString()}</p>
               </div>
 
               <div className="flex items-end justify-between mt-2">
                 <div className="flex flex-col gap-3">
-                  <p className="text-sm text-gray-500">Size: Medium • Color: Black</p>
+                  <div className="flex items-center gap-2">
+                    {item.selectedColor && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-gray-500 mr-1.5">Color:</span>
+                        <div 
+                          className="w-4 h-4 rounded-full border border-gray-200" 
+                          style={{ backgroundColor: item.selectedColor }}
+                          aria-label={`Selected color: ${item.selectedColor}`}
+                        ></div>
+                        <span className="text-sm ml-1.5 capitalize">{item.selectedColor}</span>
+                      </div>
+                    )}
+                    
+                    {item.selectedSize && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-gray-500 mx-1.5">•</span>
+                        <span className="text-sm text-gray-500 mr-1.5">Size:</span>
+                        <span className="text-sm uppercase">{item.selectedSize}</span>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="flex items-center">
                     <div className="flex items-center border rounded-md shadow-sm bg-white">
@@ -250,7 +272,7 @@ export default function CartItems() {
 
               <div className="mt-3 text-sm text-gray-500">
                 <p className="font-medium text-primary">
-                  Subtotal: ₹{(item.product.productPrice * item.quantity).toLocaleString()}
+                  Subtotal: ${(item.product.productPrice * item.quantity).toLocaleString()}
                 </p>
               </div>
             </div>

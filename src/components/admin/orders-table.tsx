@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { updateOrderStatusAction } from "@/lib/order-actions"
+import { useRouter } from "next/navigation"
 import {
   Dialog,
   DialogContent,
@@ -60,7 +61,7 @@ export default function AdminOrdersTable({ initialOrders }: OrdersTableProps) {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [newStatus, setNewStatus] = useState<string>("") 
   const [isUpdating, setIsUpdating] = useState(false)
-
+  const router = useRouter();
   // Handler to open the confirmation dialog when changing status
   const handleStatusChange = (order: Order, status: string) => {
     setSelectedOrder(order)
@@ -195,7 +196,7 @@ export default function AdminOrdersTable({ initialOrders }: OrdersTableProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          /* View order details */
+                          router.push(`/admin/orders/${order.id}`)
                         }}
                       >
                         <Eye className="h-4 w-4" />

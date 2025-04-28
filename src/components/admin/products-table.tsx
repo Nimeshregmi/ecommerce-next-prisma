@@ -18,6 +18,9 @@ type Product = {
   productStatus: string
   categoryId: string
   image?: string | null
+  color:string[]
+  size:string[]
+  description?:string
   category?: {
     id: string
     categoryName: string
