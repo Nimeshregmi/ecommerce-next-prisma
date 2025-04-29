@@ -1,6 +1,6 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
-import type { NextRequest } from "next/server";
+import type { NextRequest, NextResponse } from "next/server";
 
 // Secret key for JWT signing and verification
 const JWT_SECRET = new TextEncoder().encode(
@@ -59,6 +59,7 @@ export async function getAuthUser(
     }
 
     if (!token) {
+      console.log("No auth-token cookie found");
       return null;
     }
 
@@ -69,16 +70,29 @@ export async function getAuthUser(
   }
 }
 
-// Set auth token in cookies
-export async function setAuthCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set("auth-token", token, {
+// Set auth token in cookies (for both response objects and server actions)
+export async function setAuthCookie(responseOrToken: NextResponse | string, tokenParam?: string) {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
-    sameSite: "strict",
-  });
+    sameSite: "strict" as const,
+  };
+
+  // Case 1: Called from an API route with response object and token
+  if (typeof responseOrToken !== "string" && tokenParam) {
+    responseOrToken.cookies.set("auth-token", tokenParam, cookieOptions);
+    return;
+  }
+  
+  // Case 2: Called from server action with just the token
+  if (typeof responseOrToken === "string") {
+    const token = responseOrToken;
+    const cookiees=await cookies();
+    cookiees.set("auth-token", token, cookieOptions);
+    return;
+  }
 }
 
 // Clear auth cookie
