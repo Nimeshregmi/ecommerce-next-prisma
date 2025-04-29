@@ -49,10 +49,30 @@ export async function POST(req: NextRequest) {
         "auth"
       )
 
-      return NextResponse.json({
+      // Create token and setup the auth cookie
+      const token = await createToken({
+        id: user.id,
+        name: customer.customerName,
+        email: customer.email,
+        role: user.role as 'user'|'admin',
+      })
+
+      // Create response with auth cookie
+      const response = NextResponse.json({
         success: true,
         message: "Login successful",
+        data: {
+          id: user.id,
+          name: customer.customerName,
+          email: customer.email,
+          role: user.role,
+        },
       })
+
+      // Set the auth cookie in the response
+      await setAuthCookie(response, token)
+
+      return response
     }
   } catch (error) {
     console.error("Login error:", error)

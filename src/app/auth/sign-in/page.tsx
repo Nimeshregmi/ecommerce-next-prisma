@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: "Sign in to your Fashion Fuel account",
 }
 
+// Making searchParams static to avoid the Next.js error
+export const dynamic = 'force-static';
+
 export default async function SignInPage({
   searchParams,
 }: {
@@ -21,8 +24,8 @@ export default async function SignInPage({
     redirect("/")
   }
   
-  // Access searchParams safely
-  const registered = searchParams.registered === "true"
+  // Access searchParams safely - convert to boolean
+  const registered = searchParams?.registered === "true"
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-white via-gray-50 to-white flex flex-col items-center justify-center p-4 md:p-8">
